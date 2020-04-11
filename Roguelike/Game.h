@@ -9,6 +9,7 @@
 #include "Camera.h"
 #include "RenderTexture.h"
 #include "Player.h"
+#include "CollisionDetection.h"
 
 class Game final : public DX::IDeviceNotify
 {
@@ -56,10 +57,6 @@ private:
     void CreateDeviceDependentResources();
     void CreateWindowSizeDependentResources();
 	void SetupGUI();
-	bool SAT();
-	void CheckBoundaries();
-//	void CheckCollisions(ModelClass, ModelClass);
-//	void MoveAI();
 
     // Device resources.
     std::unique_ptr<DX::DeviceResources>    m_deviceResources;
@@ -87,10 +84,10 @@ private:
 	Light																	m_Light;
 
 	//Cameras
-	Camera																	m_Camera01;
+	Camera																	m_Camera;
 	bool																	m_cameraLock;
 
-	//textures 
+	//Textures 
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>                        m_texture1;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>                        m_texture2;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>                        m_texture3;
@@ -98,8 +95,8 @@ private:
 	//Shaders
 	Shader																	m_BasicShaderPair;
 
-	//Scene
-	ModelClass																m_PlayerModel;
+	//Scene Objects
+	Player*																	m_Player;
 	ModelClass																m_BoundaryModel;
 
 	//RenderTextures
@@ -109,7 +106,6 @@ private:
 	
 	//Collision Detection
 	std::wstring															debugLine;
-	SimpleMath::Vector3														m_playerPosition;
 
 #ifdef DXTK_AUDIO
     std::unique_ptr<DirectX::AudioEngine>                                   m_audEngine;

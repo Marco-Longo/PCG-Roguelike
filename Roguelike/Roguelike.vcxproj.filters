@@ -63,6 +63,9 @@
     <ClCompile Include="Player.cpp">
       <Filter>Gameplay</Filter>
     </ClCompile>
+    <ClCompile Include="CollisionDetection.cpp">
+      <Filter>Gameplay</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="imconfig.h">
@@ -126,6 +129,9 @@
       <Filter>Headers</Filter>
     </ClInclude>
     <ClInclude Include="Player.h">
+      <Filter>Gameplay</Filter>
+    </ClInclude>
+    <ClInclude Include="CollisionDetection.h">
       <Filter>Gameplay</Filter>
     </ClInclude>
   </ItemGroup>

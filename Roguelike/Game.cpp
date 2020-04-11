@@ -61,18 +61,15 @@ void Game::Initialize(HWND window, int width, int height)
 	m_CameraViewRect.bottom = 240;
 
 	//setup light
-	m_Light.setAmbientColour(0.3f, 0.3f, 0.3f, 1.0f);
+	m_Light.setAmbientColour(0.4f, 0.4f, 0.4f, 1.0f);
 	m_Light.setDiffuseColour(1.0f, 1.0f, 1.0f, 1.0f);
 	m_Light.setPosition(2.0f, 1.0f, 1.0f);
 	m_Light.setDirection(-1.0f, -1.0f, 0.0f);
 
 	//setup camera
-	m_Camera01.setPosition(Vector3(0.0f, 4.0f, 0.0f));
-	m_Camera01.setRotation(Vector3(180.0f, 0.0f, 0.0f));
-	m_cameraLock = false;
-
-	//Initialize player
-	m_playerPosition = Vector3(0, 0, 0);
+	m_Camera.setPosition(Vector3(0.0f, 0.0f, 4.0f));
+	m_Camera.setRotation(Vector3(-90.0f, -270.0f, 0.0f));
+	m_cameraLock = true;
 	
 #ifdef DXTK_AUDIO
     // Create DirectXTK for Audio objects
@@ -139,8 +136,8 @@ void Game::Update(DX::StepTimer const& timer)
 	//Handle Input
 	if (m_gameInputCommands.resetView)
 	{
-		m_Camera01.setPosition(Vector3(0.0f, 4.0f, 0.0f));
-		m_Camera01.setRotation(Vector3(180.0f, 0.0f, 0.0f));
+		m_Camera.setPosition(Vector3(0.0f, 0.0f, 4.0f));
+		m_Camera.setRotation(Vector3(-90.0f, -270.0f, 0.0f));
 		m_cameraLock = false;
 	}
 	/*
@@ -196,41 +193,40 @@ void Game::Update(DX::StepTimer const& timer)
 	}
 	*/
 
-	//Rectangle commands
-	float rectSpeed = 1.5f;
-	Vector3 currentPos = m_playerPosition;
+	//Player commands
+	Vector3 inputPos = m_Player->GetPosition();
 	if (m_gameInputCommands.right)
 	{
-		m_playerPosition.z += rectSpeed * dt;
+		inputPos.x += m_Player->GetSpeed() *dt;
 	}
 	if (m_gameInputCommands.left)
 	{
-		m_playerPosition.z -= rectSpeed * dt;
+		inputPos.x -= m_Player->GetSpeed() * dt;
 	}
 	if (m_gameInputCommands.down)
 	{
-		m_playerPosition.x -= rectSpeed * dt;
+		inputPos.y -= m_Player->GetSpeed() * dt;
 	}
 	if (m_gameInputCommands.up)
 	{
-		m_playerPosition.x += rectSpeed * dt;
+		inputPos.y += m_Player->GetSpeed() * dt;
 	}
+	m_Player->SetPosition(inputPos);
 
-	m_Camera01.Update();	//camera update.
-
-	m_view = m_Camera01.getCameraMatrix();
+	m_Camera.Update();
+	m_view = m_Camera.getCameraMatrix();
 	m_world = Matrix::Identity;
 	lastFrameCursorPos = Vector2(mousePos.x, mousePos.y);
 
 	//create our UI
 	SetupGUI();
 
-	//Check for collisions between rectangles
-	if (SAT())
+	//Check for collisions between scene objects
+	if (CollisionDetection::SAT(m_Player, m_BoundaryModel))
 		debugLine = L"Collision has occured";
 	else
 		debugLine = L"NO collision has occurred";
-	CheckBoundaries();
+	m_Player->CheckBoundaries(m_BoundaryModel);
 
 #ifdef DXTK_AUDIO
     m_audioTimerAcc -= (float)timer.GetElapsedSeconds();
@@ -290,18 +286,6 @@ void Game::Render()
 	context->OMSetDepthStencilState(m_states->DepthNone(), 0);
 	context->RSSetState(m_states->CullClockwise());
 //	context->RSSetState(m_states->Wireframe());
-
-	/* Prepare transform for the terrain 
-	m_world = SimpleMath::Matrix::Identity; //set world back to identity
-	SimpleMath::Matrix newPosition3 = SimpleMath::Matrix::CreateTranslation(0.0f, 0.0f, 0.0f);
-	SimpleMath::Matrix newScale = SimpleMath::Matrix::CreateScale(0.1);	//scale the terrain down a little. 
-	m_world = m_world * newScale * newPosition3;
-
-	// Setup and draw terrain
-	m_BasicShaderPair.EnableShader(context);
-	m_BasicShaderPair.SetShaderParameters(context, &m_world, &m_view, &m_projection, &m_Light, m_texture1.Get(), m_texture2.Get(), m_texture3.Get());
-	m_Terrain.Render(context);
-	*/
 	
 	//Boundary rectangle
 	m_world = SimpleMath::Matrix::Identity; //set world back to identity
@@ -311,18 +295,17 @@ void Game::Render()
 	m_world = m_world * newPosition;
 
 	m_BasicShaderPair.EnableShader(context);
-	m_BasicShaderPair.SetShaderParameters(context, &m_world, &m_view, &m_projection, &m_Light, m_texture1.Get());
+	m_BasicShaderPair.SetShaderParameters(context, &m_world, &m_view, &m_projection, &m_Light, m_texture3.Get());
 	m_BoundaryModel.Render(context);
 
-	//Player rectangle
-	m_world = SimpleMath::Matrix::Identity; //set world back to identity
-	m_PlayerModel.SetCentre(m_playerPosition);
-	newPosition = SimpleMath::Matrix::CreateTranslation(m_playerPosition);
+	//Player Class
+	m_world = SimpleMath::Matrix::Identity;
+	newPosition = SimpleMath::Matrix::CreateTranslation(m_Player->GetPosition());
 	m_world = m_world * newPosition;
 
 	m_BasicShaderPair.EnableShader(context);
-	m_BasicShaderPair.SetShaderParameters(context, &m_world, &m_view, &m_projection, &m_Light, m_texture1.Get());
-	m_PlayerModel.Render(context);
+	m_BasicShaderPair.SetShaderParameters(context, &m_world, &m_view, &m_projection, &m_Light, m_Player->GetTexture());
+	m_Player->Render(context);
 
 	// Render our GUI
 	ImGui::Render();
@@ -354,6 +337,8 @@ void Game::Clear()
 }
 
 /*
+//COLLISION DETECTION FUNCTIONS
+
 void Game::MoveAI()
 {
 	float speed = 1.5f;
@@ -400,18 +385,9 @@ void Game::MoveAI()
 		m_aiPosition.z -= speed * dt; //Left
 	}
 }
-*/
 
 bool Game::SAT()
 {
-	/*
-	debugLine = L"";
-	debugLine += L"Rectangle 1 Width-Height: " + std::to_wstring(m_BasicModel2.GetWidth()) + L"-" + std::to_wstring(m_BasicModel2.GetHeight());
-	debugLine += L"\nRectangle 2 Width-Height: " + std::to_wstring(m_BasicModel3.GetWidth()) + L"-" + std::to_wstring(m_BasicModel3.GetHeight());
-	debugLine += L"\nRectangle 1 Centre: " + std::to_wstring(m_BasicModel2.GetCentre().x) + L", " + std::to_wstring(m_BasicModel2.GetCentre().y) + L", " + std::to_wstring(m_BasicModel2.GetCentre().z);
-	debugLine += L"\nRectangle 2 Centre: " + std::to_wstring(m_BasicModel3.GetCentre().x) + L", " + std::to_wstring(m_BasicModel3.GetCentre().y) + L", " + std::to_wstring(m_BasicModel3.GetCentre().z);
-	*/
-
 	float minX1, maxX1, minY1, maxY1, minZ1, maxZ1;
 	float minX2, maxX2, minY2, maxY2, minZ2, maxZ2;
 
@@ -465,7 +441,6 @@ void Game::CheckBoundaries()
 		m_playerPosition.x = minX2 + (m_PlayerModel.GetWidth() / 2.0f);
 }
 
-/*
 void Game::CheckCollisions(ModelClass player, ModelClass other)
 {
 	float minX1, maxX1, minY1, maxY1, minZ1, maxZ1;
@@ -568,12 +543,12 @@ void Game::CreateDeviceDependentResources()
     m_font = std::make_unique<SpriteFont>(device, L"SegoeUI_18.spritefont");
 	m_batch = std::make_unique<PrimitiveBatch<VertexPositionColor>>(context);
 
-	//setup our test model
-	m_BoundaryModel.InitializeBox(device, 4.0f, 0.0f, 6.0f);
-	m_PlayerModel.InitializeBox(device, 0.5f, 0.0f, 0.75f);
+	//setup our player model
+	m_BoundaryModel.InitializeBox(device, 6.0f, 4.0f, 0.0f);
+	m_Player = new Player(device);
 
 	//load and set up our Vertex and Pixel Shaders
-	m_BasicShaderPair.InitStandard(device, L"light_vs.cso", L"light_ps.cso");
+	m_BasicShaderPair.InitStandard(device, L"./light_vs.cso", L"./light_ps.cso");
 
 	//load Textures
 	CreateDDSTextureFromFile(device, L"seafloor.dds", nullptr, m_texture1.ReleaseAndGetAddressOf());
@@ -615,8 +590,8 @@ void Game::SetupGUI()
 	ImGui::NewFrame();
 
 	ImGui::Begin("GUI Parameters");
-		ImGui::SliderFloat("PlayerX", &m_playerPosition.x, -2.0f, 2.0f);
-		ImGui::SliderFloat("PlayerZ", &m_playerPosition.z, -3.0f, 3.0f);
+		ImGui::SliderFloat("PlayerX", m_Player->GetPositionX(), -3.0f, 3.0f);
+		ImGui::SliderFloat("PlayerY", m_Player->GetPositionY(), -3.0f, 3.0f);
 	ImGui::End();
 }
 
