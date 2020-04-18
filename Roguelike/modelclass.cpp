@@ -55,10 +55,6 @@ bool ModelClass::InitializeSphere(ID3D11Device *device)
 
 bool ModelClass::InitializeBox(ID3D11Device * device, float xwidth, float yheight, float zdepth)
 {
-	m_boxHeight = yheight;
-	m_boxWidth = xwidth;
-	m_boxDepth = zdepth;
-
 	GeometricPrimitive::CreateBox(preFabVertices, preFabIndices, DirectX::SimpleMath::Vector3(xwidth, yheight, zdepth),false);
 	m_vertexCount = preFabVertices.size();
 	m_indexCount = preFabIndices.size();
@@ -71,27 +67,6 @@ bool ModelClass::InitializeBox(ID3D11Device * device, float xwidth, float yheigh
 		return false;
 	}
 	return true;
-}
-
-void ModelClass::SetCentre(SimpleMath::Vector3 newPos)
-{
-	m_boxCentre = newPos;
-}
-SimpleMath::Vector3 ModelClass::GetCentre()
-{
-	return m_boxCentre;
-}
-float ModelClass::GetHeight()
-{
-	return m_boxHeight;
-}
-float ModelClass::GetWidth()
-{
-	return m_boxWidth;
-}
-float ModelClass::GetDepth()
-{
-	return m_boxDepth;
 }
 
 void ModelClass::Shutdown()

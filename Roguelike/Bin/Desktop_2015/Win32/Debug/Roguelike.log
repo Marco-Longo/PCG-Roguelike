@@ -1,23 +1,26 @@
-﻿  CollisionDetection.cpp
-C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\CollisionDetection.h(2,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
-C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Player.h(2,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
-C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Player.h(3,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+﻿  Boundary.cpp
+  CollisionDetection.cpp
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Boundary.h(2,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Boundary.h(2,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
 C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\CollisionDetection.h(3,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\CollisionDetection.h(4,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
   Game.cpp
-C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\CollisionDetection.h(9,2): warning C4091: 'static ': ignored on left of 'CollisionDetection' when no variable is declared
-C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Player.h(2,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
-C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Player.h(3,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
-C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\CollisionDetection.h(2,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\CollisionDetection.h(10,2): warning C4091: 'static ': ignored on left of 'CollisionDetection' when no variable is declared
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Boundary.h(2,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
 C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\CollisionDetection.h(3,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
-C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\CollisionDetection.h(9,2): warning C4091: 'static ': ignored on left of 'CollisionDetection' when no variable is declared
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\CollisionDetection.h(4,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\CollisionDetection.h(10,2): warning C4091: 'static ': ignored on left of 'CollisionDetection' when no variable is declared
 C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Game.cpp(219,51): warning C4244: 'argument': conversion from 'LONG' to 'float', possible loss of data
+  Input.cpp
   Main.cpp
 C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Game.cpp(219,39): warning C4244: 'argument': conversion from 'LONG' to 'float', possible loss of data
-C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Player.h(2,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
-C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Player.h(3,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
-C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\CollisionDetection.h(2,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Boundary.h(2,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
 C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\CollisionDetection.h(3,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
-C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\CollisionDetection.h(9,2): warning C4091: 'static ': ignored on left of 'CollisionDetection' when no variable is declared
-  Generating Code...
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\CollisionDetection.h(4,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\CollisionDetection.h(10,2): warning C4091: 'static ': ignored on left of 'CollisionDetection' when no variable is declared
+  Player.cpp
 C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Main.cpp(47,12): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+  modelclass.cpp
+  Generating Code...
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Boundary.h(2,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
   Roguelike.vcxproj -> C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Bin\Desktop_2015\Win32\Debug\Roguelike.exe

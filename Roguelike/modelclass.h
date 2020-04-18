@@ -27,13 +27,6 @@ public:
 	
 	int GetIndexCount();
 
-	//Getters and Setters (for box objects)
-	float GetWidth();
-	float GetHeight();
-	float GetDepth();
-	SimpleMath::Vector3 GetCentre();
-	void SetCentre(SimpleMath::Vector3);
-
 private:
 	bool InitializeBuffers(ID3D11Device*);
 	void ShutdownBuffers();
@@ -49,10 +42,5 @@ private:
 	//arrays for our generated objects Made by directX
 	std::vector<VertexPositionNormalTexture> preFabVertices;
 	std::vector<uint16_t> preFabIndices;
-
-	float m_boxWidth;
-	float m_boxHeight;
-	float m_boxDepth;
-	SimpleMath::Vector3 m_boxCentre;
 };
 #endif

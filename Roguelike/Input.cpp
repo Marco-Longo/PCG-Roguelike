@@ -18,18 +18,10 @@ void Input::Initialise(HWND window)
 	m_quitApp = false;
 	m_scrollValue = 0;
 
-	m_GameInput.forward		= false;
-	m_GameInput.back		= false;
 	m_GameInput.right		= false;
 	m_GameInput.left		= false;
 	m_GameInput.down		= false;
 	m_GameInput.up			= false;
-	m_GameInput.rotRight	= false;
-	m_GameInput.rotLeft		= false;
-	m_GameInput.generate	= false;
-	m_GameInput.smooth		= false;
-	m_GameInput.voronoi		= false;
-	m_GameInput.rotate		= false;
 	m_GameInput.resetView	= false;
 }
 
@@ -38,26 +30,7 @@ void Input::Update()
 	auto kb = m_keyboard->GetState();	//updates the basic keyboard state
 	m_KeyboardTracker.Update(kb);		//updates the more feature filled state. Press / release etc. 
 	auto mouse = m_mouse->GetState();   //updates the basic mouse state
-	m_MouseTracker.Update(mouse);		//updates the more advanced mouse state. 
-
-	//Right Click
-	m_mouse->SetMode(mouse.rightButton ? DirectX::Mouse::MODE_RELATIVE : DirectX::Mouse::MODE_ABSOLUTE);
-	if (mouse.positionMode == DirectX::Mouse::MODE_RELATIVE)
-		m_GameInput.rotate = true;
-	else
-		m_GameInput.rotate = false;
-
-	//Scroll Wheel
-	int currScrollValue = mouse.scrollWheelValue;
-	if ((currScrollValue - m_scrollValue) > 0)
-		m_GameInput.forward = true;
-	else
-		m_GameInput.forward = false;
-	if ((currScrollValue - m_scrollValue) < 0)
-		m_GameInput.back = true;
-	else
-		m_GameInput.back = false;
-	m_scrollValue = currScrollValue;
+	m_MouseTracker.Update(mouse);		//updates the more advanced mouse state.
 
 	if (kb.Escape) 
 	{
@@ -85,24 +58,6 @@ void Input::Update()
 		m_GameInput.resetView = true;
 	else
 		m_GameInput.resetView = false;
-
-	//space
-	if (m_KeyboardTracker.IsKeyPressed(DirectX::Keyboard::Keys::Space))
-		m_GameInput.generate = true;
-	else		
-		m_GameInput.generate = false;
-
-	//P key
-	if (m_KeyboardTracker.IsKeyPressed(DirectX::Keyboard::Keys::P))	
-		m_GameInput.smooth = true;
-	else
-		m_GameInput.smooth = false;
-
-	//V key
-	if (m_KeyboardTracker.IsKeyPressed(DirectX::Keyboard::Keys::V))
-		m_GameInput.voronoi = true;
-	else
-		m_GameInput.voronoi = false;
 }
 
 bool Input::Quit()

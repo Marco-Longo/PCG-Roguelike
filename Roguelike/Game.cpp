@@ -222,11 +222,11 @@ void Game::Update(DX::StepTimer const& timer)
 	SetupGUI();
 
 	//Check for collisions between scene objects
-	if (CollisionDetection::SAT(m_Player, m_BoundaryModel))
+	if (CollisionDetection::SAT(m_Player, m_Boundary))
 		debugLine = L"Collision has occured";
 	else
 		debugLine = L"NO collision has occurred";
-	m_Player->CheckBoundaries(m_BoundaryModel);
+	m_Player->CheckBoundaries(m_Boundary);
 
 #ifdef DXTK_AUDIO
     m_audioTimerAcc -= (float)timer.GetElapsedSeconds();
@@ -286,19 +286,17 @@ void Game::Render()
 	context->OMSetDepthStencilState(m_states->DepthNone(), 0);
 	context->RSSetState(m_states->CullClockwise());
 //	context->RSSetState(m_states->Wireframe());
-	
-	//Boundary rectangle
-	m_world = SimpleMath::Matrix::Identity; //set world back to identity
-	Vector3 rectPosition1 = Vector3(0.0f, 0.0f, 0.0f);
-	m_BoundaryModel.SetCentre(rectPosition1);
-	SimpleMath::Matrix newPosition = SimpleMath::Matrix::CreateTranslation(rectPosition1);
+
+	//Boundary
+	m_world = SimpleMath::Matrix::Identity;
+	SimpleMath::Matrix newPosition = SimpleMath::Matrix::CreateTranslation(m_Boundary->GetPosition());
 	m_world = m_world * newPosition;
 
 	m_BasicShaderPair.EnableShader(context);
-	m_BasicShaderPair.SetShaderParameters(context, &m_world, &m_view, &m_projection, &m_Light, m_texture3.Get());
-	m_BoundaryModel.Render(context);
+	m_BasicShaderPair.SetShaderParameters(context, &m_world, &m_view, &m_projection, &m_Light, m_Boundary->GetTexture());
+	m_Boundary->Render(context);
 
-	//Player Class
+	//Player
 	m_world = SimpleMath::Matrix::Identity;
 	newPosition = SimpleMath::Matrix::CreateTranslation(m_Player->GetPosition());
 	m_world = m_world * newPosition;
@@ -543,9 +541,9 @@ void Game::CreateDeviceDependentResources()
     m_font = std::make_unique<SpriteFont>(device, L"SegoeUI_18.spritefont");
 	m_batch = std::make_unique<PrimitiveBatch<VertexPositionColor>>(context);
 
-	//setup our player model
-	m_BoundaryModel.InitializeBox(device, 6.0f, 4.0f, 0.0f);
+	//setup our player and boundary models
 	m_Player = new Player(device);
+	m_Boundary = new Boundary(device);
 
 	//load and set up our Vertex and Pixel Shaders
 	m_BasicShaderPair.InitStandard(device, L"./light_vs.cso", L"./light_ps.cso");
@@ -555,7 +553,7 @@ void Game::CreateDeviceDependentResources()
 	CreateDDSTextureFromFile(device, L"grass.dds", nullptr,	m_texture2.ReleaseAndGetAddressOf());
 	CreateDDSTextureFromFile(device, L"rock.dds", nullptr,	m_texture3.ReleaseAndGetAddressOf());
 
-	//Initialise Render to texture
+	//initialise Render to texture
 	m_FirstRenderPass = new RenderTexture(device, 800, 600, 1, 2);	//for our rendering, we dont use the last two properties, but they can't be zero and they can't be the same. 
 }
 

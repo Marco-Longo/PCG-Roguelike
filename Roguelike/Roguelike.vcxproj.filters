@@ -66,6 +66,9 @@
     <ClCompile Include="CollisionDetection.cpp">
       <Filter>Gameplay</Filter>
     </ClCompile>
+    <ClCompile Include="Boundary.cpp">
+      <Filter>Gameplay</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="imconfig.h">
@@ -132,6 +135,9 @@
       <Filter>Gameplay</Filter>
     </ClInclude>
     <ClInclude Include="CollisionDetection.h">
+      <Filter>Gameplay</Filter>
+    </ClInclude>
+    <ClInclude Include="Boundary.h">
       <Filter>Gameplay</Filter>
     </ClInclude>
   </ItemGroup>

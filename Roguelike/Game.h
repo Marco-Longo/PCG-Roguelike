@@ -10,6 +10,7 @@
 #include "RenderTexture.h"
 #include "Player.h"
 #include "CollisionDetection.h"
+#include "Boundary.h"
 
 class Game final : public DX::IDeviceNotify
 {
@@ -97,7 +98,7 @@ private:
 
 	//Scene Objects
 	Player*																	m_Player;
-	ModelClass																m_BoundaryModel;
+	Boundary*																m_Boundary;
 
 	//RenderTextures
 	RenderTexture*															m_FirstRenderPass;
