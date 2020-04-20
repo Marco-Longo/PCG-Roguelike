@@ -70,6 +70,13 @@ void Camera::setPosition(DirectX::SimpleMath::Vector3 newPosition)
 	m_position = newPosition;
 }
 
+void Camera::setPosition(float x, float y, float z)
+{
+	m_position.x = x;
+	m_position.y = y;
+	m_position.z = z;
+}
+
 DirectX::SimpleMath::Vector3 Camera::getPosition()
 {
 	return m_position;

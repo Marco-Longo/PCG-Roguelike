@@ -13,7 +13,8 @@ private:
 
 public:
 public:
-	Boundary(ID3D11Device*);
+	Boundary(ID3D11Device*, float, float, std::wstring);
+	Boundary(ID3D11Device*, float, float, float, float, std::wstring);
 
 	float GetWidth();
 	float GetHeight();
@@ -24,4 +25,3 @@ public:
 
 	void Render(ID3D11DeviceContext*);
 };
-

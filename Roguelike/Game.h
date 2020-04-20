@@ -1,5 +1,4 @@
 #pragma once
-
 #include "DeviceResources.h"
 #include "StepTimer.h"
 #include "Shader.h"
@@ -10,7 +9,7 @@
 #include "RenderTexture.h"
 #include "Player.h"
 #include "CollisionDetection.h"
-#include "Boundary.h"
+#include "MapGenerator.h"
 
 class Game final : public DX::IDeviceNotify
 {
@@ -98,7 +97,8 @@ private:
 
 	//Scene Objects
 	Player*																	m_Player;
-	Boundary*																m_Boundary;
+	Boundary*																m_Background;
+	MapGenerator*															m_MapGen;
 
 	//RenderTextures
 	RenderTexture*															m_FirstRenderPass;
@@ -132,6 +132,7 @@ private:
 	//Time Variables
 	float																	dt;
 	int																		fps;
+	std::wstring															fps_text;
 
 	//Mouse State
 	DirectX::SimpleMath::Vector2											lastFrameCursorPos;

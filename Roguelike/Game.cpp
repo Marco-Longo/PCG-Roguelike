@@ -61,13 +61,13 @@ void Game::Initialize(HWND window, int width, int height)
 	m_CameraViewRect.bottom = 240;
 
 	//setup light
-	m_Light.setAmbientColour(0.4f, 0.4f, 0.4f, 1.0f);
+	m_Light.setAmbientColour(1.0f, 1.0f, 1.0f, 1.0f);
 	m_Light.setDiffuseColour(1.0f, 1.0f, 1.0f, 1.0f);
-	m_Light.setPosition(2.0f, 1.0f, 1.0f);
-	m_Light.setDirection(-1.0f, -1.0f, 0.0f);
+//	m_Light.setPosition(2.0f, 1.0f, 1.0f);
+//	m_Light.setDirection(-1.0f, -1.0f, 0.0f);
 
 	//setup camera
-	m_Camera.setPosition(Vector3(0.0f, 0.0f, 4.0f));
+	m_Camera.setPosition(Vector3(0.0f, 0.0f, 5.0f));
 	m_Camera.setRotation(Vector3(-90.0f, -270.0f, 0.0f));
 	m_cameraLock = true;
 	
@@ -129,16 +129,22 @@ void Game::Update(DX::StepTimer const& timer)
 	//Update delta time and fps
 	dt = float(timer.GetElapsedSeconds());
 	if (timer.GetFrameCount() == 1 || timer.GetFrameCount() % 120 == 0)
+	{
 		fps = int(1.0f / dt);
+		fps_text = L"FPS: " + std::to_wstring(fps);
+	}
 
 	//Update Mouse Position
 	GetCursorPos(&mousePos);
 	//Handle Input
 	if (m_gameInputCommands.resetView)
 	{
-		m_Camera.setPosition(Vector3(0.0f, 0.0f, 4.0f));
+		m_Camera.setPosition(Vector3(0.0f, 0.0f, 5.0f));
 		m_Camera.setRotation(Vector3(-90.0f, -270.0f, 0.0f));
-		m_cameraLock = false;
+	}
+	if (m_gameInputCommands.resetLevel)
+	{
+		m_MapGen->ResetLevel();
 	}
 	/*
 	if (!m_cameraLock)
@@ -192,6 +198,19 @@ void Game::Update(DX::StepTimer const& timer)
 		}
 	}
 	*/
+	//Camera forward and back movement (DEBUG)
+	if (m_gameInputCommands.forward)
+	{
+		Vector3 position = m_Camera.getPosition();
+		position += (m_Camera.getForward() * m_Camera.getMoveSpeed() * mouseSensitivity * 2 * dt);
+		m_Camera.setPosition(position);
+	}
+	else if (m_gameInputCommands.back)
+	{
+		Vector3 position = m_Camera.getPosition();
+		position -= (m_Camera.getForward() * m_Camera.getMoveSpeed() * mouseSensitivity * 2 * dt);
+		m_Camera.setPosition(position);
+	}
 
 	//Player commands
 	Vector3 inputPos = m_Player->GetPosition();
@@ -213,6 +232,14 @@ void Game::Update(DX::StepTimer const& timer)
 	}
 	m_Player->SetPosition(inputPos);
 
+	//Check for collisions between scene objects
+	if (CollisionDetection::SAT(m_Player, *(m_MapGen->GetRoomsList())->begin()))
+		debugLine = L"DEBUG: Collision has occured";
+	else
+		debugLine = L"DEBUG: NO collision has occurred";
+//	m_Player->CheckBoundaries(*(m_MapGen->GetRoomsList())->begin());
+
+	m_Camera.setPosition(m_Player->GetPosition().x, m_Player->GetPosition().y, m_Camera.getPosition().z);
 	m_Camera.Update();
 	m_view = m_Camera.getCameraMatrix();
 	m_world = Matrix::Identity;
@@ -220,13 +247,6 @@ void Game::Update(DX::StepTimer const& timer)
 
 	//create our UI
 	SetupGUI();
-
-	//Check for collisions between scene objects
-	if (CollisionDetection::SAT(m_Player, m_Boundary))
-		debugLine = L"Collision has occured";
-	else
-		debugLine = L"NO collision has occurred";
-	m_Player->CheckBoundaries(m_Boundary);
 
 #ifdef DXTK_AUDIO
     m_audioTimerAcc -= (float)timer.GetElapsedSeconds();
@@ -275,28 +295,36 @@ void Game::Render()
 	auto renderTargetView = m_deviceResources->GetRenderTargetView();
 	auto depthTargetView = m_deviceResources->GetDepthStencilView();
 
-    // Draw Text to the screen
-    m_sprites->Begin();
-		m_font->DrawString(m_sprites.get(), L"Procedural Methods", XMFLOAT2(10, 10), Colors::Yellow);
-		m_font->DrawString(m_sprites.get(), debugLine.c_str(), XMFLOAT2(10, 40), Colors::Yellow);
-    m_sprites->End();
-
 	// Set Rendering states
 	context->OMSetBlendState(m_states->Opaque(), nullptr, 0xFFFFFFFF);
 	context->OMSetDepthStencilState(m_states->DepthNone(), 0);
 	context->RSSetState(m_states->CullClockwise());
 //	context->RSSetState(m_states->Wireframe());
 
-	//Boundary
+	// Background
 	m_world = SimpleMath::Matrix::Identity;
-	SimpleMath::Matrix newPosition = SimpleMath::Matrix::CreateTranslation(m_Boundary->GetPosition());
+	SimpleMath::Matrix newPosition = SimpleMath::Matrix::CreateTranslation(m_Background->GetPosition());
 	m_world = m_world * newPosition;
 
 	m_BasicShaderPair.EnableShader(context);
-	m_BasicShaderPair.SetShaderParameters(context, &m_world, &m_view, &m_projection, &m_Light, m_Boundary->GetTexture());
-	m_Boundary->Render(context);
+	m_BasicShaderPair.SetShaderParameters(context, &m_world, &m_view, &m_projection, &m_Light, m_Background->GetTexture());
+	m_Background->Render(context);
 
-	//Player
+	// Generated Map
+	std::vector<Boundary*>* roomsList = m_MapGen->GetRoomsList();
+	for (std::vector<Boundary*>::iterator it = roomsList->begin(); it != roomsList->end(); ++it)
+	{
+		Boundary* bound = *it;
+		m_world = SimpleMath::Matrix::Identity;
+		SimpleMath::Matrix newPosition = SimpleMath::Matrix::CreateTranslation(bound->GetPosition());
+		m_world = m_world * newPosition;
+
+		m_BasicShaderPair.EnableShader(context);
+		m_BasicShaderPair.SetShaderParameters(context, &m_world, &m_view, &m_projection, &m_Light, bound->GetTexture());
+		bound->Render(context);
+	}
+
+	// Player
 	m_world = SimpleMath::Matrix::Identity;
 	newPosition = SimpleMath::Matrix::CreateTranslation(m_Player->GetPosition());
 	m_world = m_world * newPosition;
@@ -304,6 +332,14 @@ void Game::Render()
 	m_BasicShaderPair.EnableShader(context);
 	m_BasicShaderPair.SetShaderParameters(context, &m_world, &m_view, &m_projection, &m_Light, m_Player->GetTexture());
 	m_Player->Render(context);
+
+	// Draw Text to the screen
+	m_sprites->Begin();
+	m_font->DrawString(m_sprites.get(), L"Advanced Procedural Methods", XMFLOAT2(10, 10), Colors::Yellow);
+//	m_font->DrawString(m_sprites.get(), debugLine.c_str(), XMFLOAT2(10, 40), Colors::Yellow);
+	m_font->DrawString(m_sprites.get(), m_MapGen->debugLine.c_str(), XMFLOAT2(10, 40), Colors::Yellow);
+	m_font->DrawString(m_sprites.get(), fps_text.c_str(), XMFLOAT2(1810, 10), Colors::Orange);
+	m_sprites->End();
 
 	// Render our GUI
 	ImGui::Render();
@@ -543,7 +579,8 @@ void Game::CreateDeviceDependentResources()
 
 	//setup our player and boundary models
 	m_Player = new Player(device);
-	m_Boundary = new Boundary(device);
+	m_Background = new Boundary(device, 10, 10, L"blackBG.dds"); //DEBUG (background)
+	m_MapGen = MapGenerator::GetInstance(device);
 
 	//load and set up our Vertex and Pixel Shaders
 	m_BasicShaderPair.InitStandard(device, L"./light_vs.cso", L"./light_ps.cso");

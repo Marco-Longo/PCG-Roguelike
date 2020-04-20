@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "Game.h"
-#include "time.h"
+#include <ctime>
 
 #ifdef DXTK_AUDIO
 #include <Dbt.h>
@@ -43,8 +43,8 @@ int WINAPI wWinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, 
     if (FAILED(hr))
         return 1;
 
+	srand(time(NULL) + GetCurrentProcessId());
     g_game = std::make_unique<Game>();
-	srand(time(NULL));
 
     // Register class and create window
     {

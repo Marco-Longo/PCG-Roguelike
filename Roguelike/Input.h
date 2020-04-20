@@ -6,7 +6,10 @@ struct InputCommands
 	bool left;
 	bool up;
 	bool down;
+	bool forward;
+	bool back;
 	bool resetView;
+	bool resetLevel;
 };
 
 class Input

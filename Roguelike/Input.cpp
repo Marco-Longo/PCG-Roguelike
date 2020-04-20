@@ -22,7 +22,10 @@ void Input::Initialise(HWND window)
 	m_GameInput.left		= false;
 	m_GameInput.down		= false;
 	m_GameInput.up			= false;
+	m_GameInput.forward		= false;
+	m_GameInput.back		= false;
 	m_GameInput.resetView	= false;
+	m_GameInput.resetLevel	= false;
 }
 
 void Input::Update()
@@ -36,6 +39,18 @@ void Input::Update()
 	{
 		m_quitApp = true;
 	}
+
+	//Scroll Wheel
+	int currScrollValue = mouse.scrollWheelValue;
+	if ((currScrollValue - m_scrollValue) > 0)
+		m_GameInput.forward = true;
+	else
+		m_GameInput.forward = false;
+	if ((currScrollValue - m_scrollValue) < 0)
+		m_GameInput.back = true;
+	else
+		m_GameInput.back = false;
+	m_scrollValue = currScrollValue;
 	
 	//A key
 	if (kb.A)	m_GameInput.left = true;
@@ -58,6 +73,12 @@ void Input::Update()
 		m_GameInput.resetView = true;
 	else
 		m_GameInput.resetView = false;
+
+	//Space key
+	if (m_KeyboardTracker.IsKeyPressed(DirectX::Keyboard::Keys::Space))
+		m_GameInput.resetLevel = true;
+	else
+		m_GameInput.resetLevel = false;
 }
 
 bool Input::Quit()

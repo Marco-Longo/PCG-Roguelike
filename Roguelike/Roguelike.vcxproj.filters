@@ -61,13 +61,16 @@
       <Filter>Resources</Filter>
     </ClCompile>
     <ClCompile Include="Player.cpp">
-      <Filter>Gameplay</Filter>
+      <Filter>Game Elements</Filter>
     </ClCompile>
     <ClCompile Include="CollisionDetection.cpp">
-      <Filter>Gameplay</Filter>
+      <Filter>Game Elements</Filter>
     </ClCompile>
     <ClCompile Include="Boundary.cpp">
-      <Filter>Gameplay</Filter>
+      <Filter>Game Elements</Filter>
+    </ClCompile>
+    <ClCompile Include="MapGenerator.cpp">
+      <Filter>Game Elements</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -132,13 +135,16 @@
       <Filter>Headers</Filter>
     </ClInclude>
     <ClInclude Include="Player.h">
-      <Filter>Gameplay</Filter>
+      <Filter>Game Elements</Filter>
     </ClInclude>
     <ClInclude Include="CollisionDetection.h">
-      <Filter>Gameplay</Filter>
+      <Filter>Game Elements</Filter>
     </ClInclude>
     <ClInclude Include="Boundary.h">
-      <Filter>Gameplay</Filter>
+      <Filter>Game Elements</Filter>
+    </ClInclude>
+    <ClInclude Include="MapGenerator.h">
+      <Filter>Game Elements</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -165,7 +171,7 @@
     <Filter Include="Rendering">
       <UniqueIdentifier>{db50f952-0c1b-443e-b287-2c0b3726e139}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Gameplay">
+    <Filter Include="Game Elements">
       <UniqueIdentifier>{387e3ef2-6a67-4b39-bae2-4c897cdebeab}</UniqueIdentifier>
     </Filter>
   </ItemGroup>

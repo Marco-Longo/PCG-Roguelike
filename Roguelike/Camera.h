@@ -8,6 +8,7 @@ public:
 	void							Update();
 	DirectX::SimpleMath::Matrix		getCameraMatrix();
 	void							setPosition(DirectX::SimpleMath::Vector3 newPosition);
+	void							setPosition(float, float, float);
 	DirectX::SimpleMath::Vector3	getPosition();
 	DirectX::SimpleMath::Vector3	getForward();
 	DirectX::SimpleMath::Vector3	getRight();
