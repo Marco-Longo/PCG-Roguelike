@@ -97,7 +97,6 @@ private:
 
 	//Scene Objects
 	Player*																	m_Player;
-	Boundary*																m_Background;
 	MapGenerator*															m_MapGen;
 
 	//RenderTextures

@@ -7,7 +7,7 @@ Player::Player(ID3D11Device * device)
 	shapeHeight = 0.3f;
 	shapeDepth = 0.0f;
 	speed = 1.5f;
-	shapePosition = SimpleMath::Vector3(0, 0, 0);
+	shapePosition = SimpleMath::Vector3(25, 15, 0);
 
 	shape.InitializeBox(device, shapeWidth, shapeHeight, shapeDepth);
 	CreateDDSTextureFromFile(device, L"greenShape.dds", nullptr, texture.ReleaseAndGetAddressOf());

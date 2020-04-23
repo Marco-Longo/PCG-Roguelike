@@ -67,7 +67,7 @@ void Game::Initialize(HWND window, int width, int height)
 //	m_Light.setDirection(-1.0f, -1.0f, 0.0f);
 
 	//setup camera
-	m_Camera.setPosition(Vector3(0.0f, 0.0f, 5.0f));
+	m_Camera.setPosition(Vector3(0.0f, 0.0f, 15.0f));
 	m_Camera.setRotation(Vector3(-90.0f, -270.0f, 0.0f));
 	m_cameraLock = true;
 	
@@ -139,7 +139,7 @@ void Game::Update(DX::StepTimer const& timer)
 	//Handle Input
 	if (m_gameInputCommands.resetView)
 	{
-		m_Camera.setPosition(Vector3(0.0f, 0.0f, 5.0f));
+		m_Camera.setPosition(Vector3(0.0f, 0.0f, 15.0f));
 		m_Camera.setRotation(Vector3(-90.0f, -270.0f, 0.0f));
 	}
 	if (m_gameInputCommands.resetLevel)
@@ -232,13 +232,13 @@ void Game::Update(DX::StepTimer const& timer)
 	}
 	m_Player->SetPosition(inputPos);
 
-	//Check for collisions between scene objects
+	/*Check for collisions between scene objects
 	if (CollisionDetection::SAT(m_Player, *(m_MapGen->GetRoomsList())->begin()))
 		debugLine = L"DEBUG: Collision has occured";
 	else
 		debugLine = L"DEBUG: NO collision has occurred";
-//	m_Player->CheckBoundaries(*(m_MapGen->GetRoomsList())->begin());
-
+	m_Player->CheckBoundaries(*(m_MapGen->GetRoomsList())->begin());
+	*/
 	m_Camera.setPosition(m_Player->GetPosition().x, m_Player->GetPosition().y, m_Camera.getPosition().z);
 	m_Camera.Update();
 	m_view = m_Camera.getCameraMatrix();
@@ -283,7 +283,7 @@ void Game::Update(DX::StepTimer const& timer)
 #pragma region Frame Render
 // Draws the scene.
 void Game::Render()
-{	
+{
     // Don't try to render anything before the first Update
     if (m_timer.GetFrameCount() == 0)
         return;
@@ -301,15 +301,6 @@ void Game::Render()
 	context->RSSetState(m_states->CullClockwise());
 //	context->RSSetState(m_states->Wireframe());
 
-	// Background
-	m_world = SimpleMath::Matrix::Identity;
-	SimpleMath::Matrix newPosition = SimpleMath::Matrix::CreateTranslation(m_Background->GetPosition());
-	m_world = m_world * newPosition;
-
-	m_BasicShaderPair.EnableShader(context);
-	m_BasicShaderPair.SetShaderParameters(context, &m_world, &m_view, &m_projection, &m_Light, m_Background->GetTexture());
-	m_Background->Render(context);
-
 	// Generated Map
 	std::vector<Boundary*>* roomsList = m_MapGen->GetRoomsList();
 	for (std::vector<Boundary*>::iterator it = roomsList->begin(); it != roomsList->end(); ++it)
@@ -326,7 +317,7 @@ void Game::Render()
 
 	// Player
 	m_world = SimpleMath::Matrix::Identity;
-	newPosition = SimpleMath::Matrix::CreateTranslation(m_Player->GetPosition());
+	SimpleMath::Matrix newPosition = SimpleMath::Matrix::CreateTranslation(m_Player->GetPosition());
 	m_world = m_world * newPosition;
 
 	m_BasicShaderPair.EnableShader(context);
@@ -579,7 +570,6 @@ void Game::CreateDeviceDependentResources()
 
 	//setup our player and boundary models
 	m_Player = new Player(device);
-	m_Background = new Boundary(device, 10, 10, L"blackBG.dds"); //DEBUG (background)
 	m_MapGen = MapGenerator::GetInstance(device);
 
 	//load and set up our Vertex and Pixel Shaders

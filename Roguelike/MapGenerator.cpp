@@ -7,86 +7,87 @@ MapGenerator* MapGenerator::GetInstance(ID3D11Device* device)
 {
 	if (instance == 0)
 	{
-		instance = new MapGenerator(device);
+		instance = new MapGenerator(device, MAP_WIDTH, MAP_HEIGHT);
 	}
 
 	return instance;
 }
 
-MapGenerator::MapGenerator(ID3D11Device* device)
+MapGenerator::MapGenerator(ID3D11Device* device, int width, int height)
 {
 	dev = device;
+	map_width = width;
+	map_height = height;
 	roomsList = new std::vector<Boundary*>();
-	
-	//Generate all the rooms ...
-	BSP();
+	tree = new std::vector<Leaf*>();
+	GenerateTree();
+	GenerateRooms();
 }
 
-void MapGenerator::BSP()
+void MapGenerator::GenerateTree()
 {
-//	roomsList->push_back(new Boundary(device, 0.01f, 10.0f, L"whiteBG.dds"));
-//	roomsList->push_back(new Boundary(device, 1.0f, 1.0f, 4, 2, L"rock.dds"));
-	
-	//First step (max size)
-	float AsizeX, AsizeY, AcentreX, AcentreY;
-	float BsizeX, BsizeY, BcentreX, BcentreY;
-	
-	float randomX = (((float)rand() / RAND_MAX) * 2.0f) - 1.0f;
-	roomsList->push_back(new Boundary(dev, 0.05f, MAXSIZE, randomX, 0, L"whiteBG.dds"));
+	tree->clear();
+	const int MAX_LEAF_SIZE = 16;
 
-	AsizeX = (MAXSIZE / 2.0f) + randomX;
-	AsizeY = MAXSIZE;
-	AcentreX = -(MAXSIZE / 2.0f) + (AsizeX / 2.0f);
-	AcentreY = 0;
-	BsizeX = (MAXSIZE / 2.0f) - randomX;
-	BsizeY = MAXSIZE;
-	BcentreX = (MAXSIZE / 2.0f) - (BsizeX / 2.0f);
-	BcentreY = 0;
-	
-	debugLine = L"Random value: " + std::to_wstring(randomX) + L"\nBoundary A: size(" + std::to_wstring(AsizeX) + L", " + std::to_wstring(AsizeY) + L"); centre(" +
-		std::to_wstring(AcentreX) + L", " + std::to_wstring(AcentreY) + L")" + L"\nBoundary B: size(" + std::to_wstring(BsizeX) + L", " +
-		std::to_wstring(BsizeY) + L"); centre(" + std::to_wstring(BcentreX) + L", " + std::to_wstring(BcentreY) + L")";
+	//Create the root of the tree
+	Leaf* root = new Leaf(dev, 0, 0, map_width, map_height);
+	tree->push_back(root);
 
-	SplitBoundary(AsizeX, AsizeY, AcentreX, AcentreY);
-	SplitBoundary(BsizeX, BsizeY, BcentreX, BcentreY);
+	bool didSplit = true;
+	while (didSplit)
+	{
+		didSplit = false;
+		Leaf* leaf = nullptr;
+		for (std::vector<Leaf*>::iterator it = tree->begin(); it != tree->end(); it++)
+		{
+			Leaf* l = *it;
+			//If the leaf has not been split yet...
+			if (l->GetLeftChild() == nullptr && l->GetRightChild() == nullptr)
+			{
+				float r = ((float)rand() / RAND_MAX);
+				//... and it is still too wide or high (or 75% chance)
+				if ((l->GetWidth() > MAX_LEAF_SIZE) || (l->GetHeight() > MAX_LEAF_SIZE) || r < 0.75f)
+				{
+					leaf = l; //This is the leaf we want to split
+					break;
+				}
+			}
+		}
+
+		if (leaf) //If a splittable leaf was found...
+		{
+			if (leaf->SplitLeaf()) //Split the leaf
+			{
+				//If the split was successful, add the new leaves to the tree
+				if (leaf->GetLeftChild())
+					tree->push_back(leaf->GetLeftChild());
+				if (leaf->GetRightChild())
+					tree->push_back(leaf->GetRightChild());
+				didSplit = true;
+			}
+		}
+	}
+	debugLine = L"Tree size: " + std::to_wstring(tree->size());
+	
+	if (tree->size() < 11) //Check if the generated dungeon is big enough
+		GenerateTree();
+	else //Iterate through each Leaf and create a room in each one
+		root->CreateRooms();
 }
 
-void MapGenerator::SplitBoundary(float sizeX, float sizeY, float centreX, float centreY)
+void MapGenerator::GenerateRooms()
 {
-	float AsizeX, AsizeY, AcentreX, AcentreY;
-	float BsizeX, BsizeY, BcentreX, BcentreY;
-	int direction = rand() % 2;
-
-	//Vertical Split
-	if (direction == 0)
+	for (std::vector<Leaf*>::iterator it = tree->begin(); it != tree->end(); it++)
 	{
-		float randomX = (((float)rand() / RAND_MAX) * 2.0f) - 1.0f;
-		roomsList->push_back(new Boundary(dev, 0.02f, sizeY, centreX + randomX, centreY, L"whiteBG.dds"));
+		Leaf* l = *it;
+		if (l->GetRoom() != nullptr)
+			AddRoom(l->GetRoom());
+	}
+}
 
-		AsizeX = (sizeX / 2.0f) + randomX;
-		AsizeY = sizeY;
-		AcentreX = -(sizeX / 2.0f) + (AsizeX / 2.0f);
-		AcentreY = centreY;
-		BsizeX = (sizeX / 2.0f) - randomX;
-		BsizeY = sizeY;
-		BcentreX = (sizeX / 2.0f) - (BsizeX / 2.0f);
-		BcentreY = centreY;
-	}
-	//Horizontal Split
-	else
-	{
-		float randomY = (((float)rand() / RAND_MAX) * 2.0f) - 1.0f;
-		roomsList->push_back(new Boundary(dev, sizeX, 0.02f, centreX, centreY + randomY, L"whiteBG.dds"));
-		
-		AsizeX = sizeX;
-		AsizeY = (sizeY / 2.0f) - randomY;
-		AcentreX = centreX;
-		AcentreY = (sizeY / 2.0f) - (AsizeY / 2.0f);
-		BsizeX = sizeX;
-		BsizeY = (sizeY / 2.0f) + randomY;
-		BcentreX = centreX;
-		BcentreY = -(sizeY / 2.0f) + (BsizeY / 2.0f);
-	}
+void MapGenerator::AddRoom(Boundary* bound)
+{
+	roomsList->push_back(bound);
 }
 
 std::vector<Boundary*>* MapGenerator::GetRoomsList()
@@ -96,6 +97,9 @@ std::vector<Boundary*>* MapGenerator::GetRoomsList()
 
 void MapGenerator::ResetLevel()
 {
+	//Clear the current dungeon
 	roomsList->clear();
-	BSP();
+	//Generate new level
+	GenerateTree();
+	GenerateRooms();
 }
