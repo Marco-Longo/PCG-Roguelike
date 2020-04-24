@@ -75,6 +75,9 @@
     <ClCompile Include="MapGenerator.cpp">
       <Filter>BSP</Filter>
     </ClCompile>
+    <ClCompile Include="Corridor.cpp">
+      <Filter>Game Elements</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="imconfig.h">
@@ -151,6 +154,9 @@
     </ClInclude>
     <ClInclude Include="MapGenerator.h">
       <Filter>BSP</Filter>
+    </ClInclude>
+    <ClInclude Include="Corridor.h">
+      <Filter>Game Elements</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

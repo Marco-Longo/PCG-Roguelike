@@ -9,6 +9,7 @@ Leaf::Leaf(ID3D11Device* device, int _x, int _y, int _width, int _height)
 	width = _width;
 	height = _height;
 	room = nullptr;
+	halls = nullptr;
 	leftChild = rightChild = nullptr;
 }
 
@@ -60,6 +61,11 @@ void Leaf::CreateRooms()
 		{
 			rightChild->CreateRooms();
 		}
+		//If there are both left and right children in this leaf, create an hallway between them
+		if (leftChild != nullptr && rightChild != nullptr)
+		{
+			CreateHall(leftChild->GetRoomRecursive(), rightChild->GetRoomRecursive());
+		}
 	}
 	else
 	{
@@ -72,6 +78,95 @@ void Leaf::CreateRooms()
 		//Place the room within the Leaf, but don't put it right against the side of the Leaf (that would merge rooms together)
 		roomPos = SimpleMath::Vector2(randBetween(1, width - roomSize.x - 1), randBetween(1, height - roomSize.y - 1));
 		room = new Boundary(dev, x + roomPos.x, y + roomPos.y, roomSize.x, roomSize.y, L"whiteBG.dds");
+	}
+}
+
+void Leaf::CreateHall(Boundary* l, Boundary* r)
+{
+	//Connect these two rooms together with hallways. Draw a straight line, or a pair of lines to make a right-angle to connect them.
+	halls = new std::vector<Corridor*>();
+
+	SimpleMath::Vector2 point1 = SimpleMath::Vector2(randBetween(l->GetLeft() + 1, l->GetRight() - 2), randBetween(l->GetTop() + 1, l->GetBottom() - 2));
+	SimpleMath::Vector2 point2 = SimpleMath::Vector2(randBetween(r->GetLeft() + 1, r->GetRight() - 2), randBetween(r->GetTop() + 1, r->GetBottom() - 2));
+	float w = point2.x - point1.x;
+	float h = point2.y - point1.y;
+
+	if (w < 0)
+	{
+		if (h < 0)
+		{
+			if (((float)rand() / RAND_MAX) < 0.5f)
+			{
+				halls->push_back(new Corridor(dev, point2.x, point1.y, std::abs(w), 1));
+				halls->push_back(new Corridor(dev, point2.x, point2.y, 1, std::abs(h)));
+			}
+			else
+			{
+				halls->push_back(new Corridor(dev, point2.x, point2.y, std::abs(w), 1));
+				halls->push_back(new Corridor(dev, point1.x, point2.y, 1, std::abs(h)));
+			}
+		}
+		else if (h > 0)
+		{
+			if (((float)rand() / RAND_MAX) < 0.5f)
+			{
+				halls->push_back(new Corridor(dev, point2.x, point1.y, std::abs(w), 1));
+				halls->push_back(new Corridor(dev, point2.x, point1.y, 1, std::abs(h)));
+			}
+			else
+			{
+				halls->push_back(new Corridor(dev, point2.x, point2.y, std::abs(w), 1));
+				halls->push_back(new Corridor(dev, point1.x, point1.y, 1, std::abs(h)));
+			}
+		}
+		else
+		{
+			halls->push_back(new Corridor(dev, point2.x, point2.y, std::abs(w), 1));
+		}
+	}
+	else if (w > 0)
+	{
+		if (h < 0)
+		{
+			if (((float)rand() / RAND_MAX) < 0.5f)
+			{
+				halls->push_back(new Corridor(dev, point1.x, point2.y, std::abs(w), 1));
+				halls->push_back(new Corridor(dev, point1.x, point2.y, 1, std::abs(h)));
+			}
+			else
+			{
+				halls->push_back(new Corridor(dev, point1.x, point1.y, std::abs(w), 1));
+				halls->push_back(new Corridor(dev, point2.x, point2.y, 1, std::abs(h)));
+			}
+		}
+		else if (h > 0)
+		{
+			if (((float)rand() / RAND_MAX) < 0.5f)
+			{
+				halls->push_back(new Corridor(dev, point1.x, point1.y, std::abs(w), 1));
+				halls->push_back(new Corridor(dev, point2.x, point1.y, 1, std::abs(h)));
+			}
+			else
+			{
+				halls->push_back(new Corridor(dev, point1.x, point2.y, std::abs(w), 1));
+				halls->push_back(new Corridor(dev, point1.x, point1.y, 1, std::abs(h)));
+			}
+		}
+		else
+		{
+			halls->push_back(new Corridor(dev, point1.x, point1.y, std::abs(w), 1));
+		}
+	}
+	else
+	{
+		if (h < 0)
+		{
+			halls->push_back(new Corridor(dev, point2.x, point2.y, 1, std::abs(h)));
+		}
+		else if (h > 0)
+		{
+			halls->push_back(new Corridor(dev, point1.x, point1.y, 1, std::abs(h)));
+		}
 	}
 }
 
@@ -108,6 +203,39 @@ void Leaf::SetRightChild(Leaf* leaf)
 Boundary* Leaf::GetRoom()
 {
 	return room;
+}
+
+Boundary* Leaf::GetRoomRecursive()
+{
+	//Iterate all the way through the leafs to find a room, if one exists
+	if (room != nullptr)
+		return room;
+	else
+	{
+		Boundary* lRoom = nullptr;
+		Boundary* rRoom = nullptr;
+
+		if (leftChild != nullptr)
+			lRoom = leftChild->GetRoomRecursive();
+		if (rightChild != nullptr)
+			rRoom = rightChild->GetRoomRecursive();
+
+		if (lRoom == nullptr && rRoom == nullptr)
+			return nullptr;
+		else if (rRoom == nullptr)
+			return lRoom;
+		else if (lRoom == nullptr)
+			return rRoom;
+		else if (((float)rand() / RAND_MAX) > 0.5f)
+			return lRoom;
+		else
+			return rRoom;
+	}
+}
+
+std::vector<Corridor*>* Leaf::GetHallsList()
+{
+	return halls;
 }
 
 void Leaf::SetRoom(Boundary* bound)

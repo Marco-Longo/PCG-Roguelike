@@ -19,9 +19,11 @@ MapGenerator::MapGenerator(ID3D11Device* device, int width, int height)
 	map_width = width;
 	map_height = height;
 	roomsList = new std::vector<Boundary*>();
+	hallsList = new std::vector<Corridor*>();
 	tree = new std::vector<Leaf*>();
 	GenerateTree();
 	GenerateRooms();
+//	GenerateHalls();
 }
 
 void MapGenerator::GenerateTree()
@@ -85,9 +87,28 @@ void MapGenerator::GenerateRooms()
 	}
 }
 
+void MapGenerator::GenerateHalls()
+{
+	for (std::vector<Leaf*>::iterator it = tree->begin(); it != tree->end(); it++)
+	{
+		Leaf* l = *it;
+		std::vector<Corridor*>* halls = l->GetHallsList();
+		if (halls != nullptr)
+		{
+			for (std::vector<Corridor*>::iterator iter = halls->begin(); iter != halls->end(); iter++)
+				AddCorridor(*iter);
+		}
+	}
+}
+
 void MapGenerator::AddRoom(Boundary* bound)
 {
 	roomsList->push_back(bound);
+}
+
+void MapGenerator::AddCorridor(Corridor* hall)
+{
+	hallsList->push_back(hall);
 }
 
 std::vector<Boundary*>* MapGenerator::GetRoomsList()
@@ -95,11 +116,18 @@ std::vector<Boundary*>* MapGenerator::GetRoomsList()
 	return roomsList;
 }
 
+std::vector<Corridor*>* MapGenerator::GetHallsList()
+{
+	return hallsList;
+}
+
 void MapGenerator::ResetLevel()
 {
 	//Clear the current dungeon
 	roomsList->clear();
+	hallsList->clear();
 	//Generate new level
 	GenerateTree();
 	GenerateRooms();
+//	GenerateHalls();
 }

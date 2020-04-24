@@ -18,6 +18,10 @@ public:
 	float GetWidth();
 	float GetHeight();
 	float GetDepth();
+	float GetLeft();
+	float GetRight();
+	float GetTop();
+	float GetBottom();
 	SimpleMath::Vector3 GetPosition();
 	void SetPosition(SimpleMath::Vector3);
 	ID3D11ShaderResourceView* GetTexture();

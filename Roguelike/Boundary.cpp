@@ -28,6 +28,26 @@ float Boundary::GetDepth()
 	return shapeDepth;
 }
 
+float Boundary::GetLeft()
+{
+	return shapePosition.x - (shapeWidth / 2.0f);
+}
+
+float Boundary::GetRight()
+{
+	return shapePosition.x + (shapeWidth / 2.0f);
+}
+
+float Boundary::GetTop()
+{
+	return shapePosition.y + (shapeHeight / 2.0f);
+}
+
+float Boundary::GetBottom()
+{
+	return shapePosition.y - (shapeHeight / 2.0f);
+}
+
 SimpleMath::Vector3 Boundary::GetPosition()
 {
 	return shapePosition;
