@@ -86,8 +86,9 @@ void Leaf::CreateHall(Boundary* l, Boundary* r)
 	//Connect these two rooms together with hallways. Draw a straight line, or a pair of lines to make a right-angle to connect them.
 	halls = new std::vector<Corridor*>();
 
-	SimpleMath::Vector2 point1 = SimpleMath::Vector2(randBetween(l->GetLeft() + 1, l->GetRight() - 2), randBetween(l->GetTop() + 1, l->GetBottom() - 2));
-	SimpleMath::Vector2 point2 = SimpleMath::Vector2(randBetween(r->GetLeft() + 1, r->GetRight() - 2), randBetween(r->GetTop() + 1, r->GetBottom() - 2));
+	SimpleMath::Vector2 point1 = SimpleMath::Vector2(randBetween(l->GetLeft() + 1, l->GetRight() - 1), randBetween(l->GetBottom() + 1, l->GetTop() - 2));
+	SimpleMath::Vector2 point2 = SimpleMath::Vector2(randBetween(r->GetLeft() + 1, r->GetRight() - 1), randBetween(r->GetBottom() + 1, r->GetTop() - 2));
+
 	float w = point2.x - point1.x;
 	float h = point2.y - point1.y;
 
@@ -110,12 +111,12 @@ void Leaf::CreateHall(Boundary* l, Boundary* r)
 		{
 			if (((float)rand() / RAND_MAX) < 0.5f)
 			{
-				halls->push_back(new Corridor(dev, point2.x, point1.y, std::abs(w), 1));
+				halls->push_back(new Corridor(dev, point2.x, point1.y, std::abs(w)+1, 1));
 				halls->push_back(new Corridor(dev, point2.x, point1.y, 1, std::abs(h)));
 			}
 			else
 			{
-				halls->push_back(new Corridor(dev, point2.x, point2.y, std::abs(w), 1));
+				halls->push_back(new Corridor(dev, point2.x, point2.y, std::abs(w)+1, 1));
 				halls->push_back(new Corridor(dev, point1.x, point1.y, 1, std::abs(h)));
 			}
 		}
@@ -130,12 +131,12 @@ void Leaf::CreateHall(Boundary* l, Boundary* r)
 		{
 			if (((float)rand() / RAND_MAX) < 0.5f)
 			{
-				halls->push_back(new Corridor(dev, point1.x, point2.y, std::abs(w), 1));
+				halls->push_back(new Corridor(dev, point1.x, point2.y, std::abs(w)+1, 1));
 				halls->push_back(new Corridor(dev, point1.x, point2.y, 1, std::abs(h)));
 			}
 			else
 			{
-				halls->push_back(new Corridor(dev, point1.x, point1.y, std::abs(w), 1));
+				halls->push_back(new Corridor(dev, point1.x, point1.y, std::abs(w)+1, 1));
 				halls->push_back(new Corridor(dev, point2.x, point2.y, 1, std::abs(h)));
 			}
 		}

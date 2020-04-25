@@ -17,7 +17,6 @@ public:
 
 	SimpleMath::Vector3 GetPosition();
 	ID3D11ShaderResourceView* GetTexture();
-
 	void Render(ID3D11DeviceContext*);
 };
 

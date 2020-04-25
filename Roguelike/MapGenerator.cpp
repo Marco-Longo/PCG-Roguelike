@@ -23,7 +23,7 @@ MapGenerator::MapGenerator(ID3D11Device* device, int width, int height)
 	tree = new std::vector<Leaf*>();
 	GenerateTree();
 	GenerateRooms();
-//	GenerateHalls();
+	GenerateHalls();
 }
 
 void MapGenerator::GenerateTree()
@@ -129,5 +129,5 @@ void MapGenerator::ResetLevel()
 	//Generate new level
 	GenerateTree();
 	GenerateRooms();
-//	GenerateHalls();
+	GenerateHalls();
 }

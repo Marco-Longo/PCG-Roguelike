@@ -302,19 +302,6 @@ void Game::Render()
 //	context->RSSetState(m_states->Wireframe());
 
 	// Generated Map
-	// Rooms
-	std::vector<Boundary*>* roomsList = m_MapGen->GetRoomsList();
-	for (std::vector<Boundary*>::iterator it = roomsList->begin(); it != roomsList->end(); ++it)
-	{
-		Boundary* bound = *it;
-		m_world = SimpleMath::Matrix::Identity;
-		SimpleMath::Matrix newPosition = SimpleMath::Matrix::CreateTranslation(bound->GetPosition());
-		m_world = m_world * newPosition;
-
-		m_BasicShaderPair.EnableShader(context);
-		m_BasicShaderPair.SetShaderParameters(context, &m_world, &m_view, &m_projection, &m_Light, bound->GetTexture());
-		bound->Render(context);
-	}
 	//Corridors
 	std::vector<Corridor*>* hallsList = m_MapGen->GetHallsList();
 	for (std::vector<Corridor*>::iterator it = hallsList->begin(); it != hallsList->end(); it++)
@@ -328,7 +315,20 @@ void Game::Render()
 		m_BasicShaderPair.SetShaderParameters(context, &m_world, &m_view, &m_projection, &m_Light, hall->GetTexture());
 		hall->Render(context);
 	}
+	// Rooms
+	std::vector<Boundary*>* roomsList = m_MapGen->GetRoomsList();
+	for (std::vector<Boundary*>::iterator it = roomsList->begin(); it != roomsList->end(); ++it)
+	{
+		Boundary* bound = *it;
+		m_world = SimpleMath::Matrix::Identity;
+		SimpleMath::Matrix newPosition = SimpleMath::Matrix::CreateTranslation(bound->GetPosition());
+		m_world = m_world * newPosition;
 
+		m_BasicShaderPair.EnableShader(context);
+		m_BasicShaderPair.SetShaderParameters(context, &m_world, &m_view, &m_projection, &m_Light, bound->GetTexture());
+		bound->Render(context);
+	}
+	
 	// Player
 	m_world = SimpleMath::Matrix::Identity;
 	SimpleMath::Matrix newPosition = SimpleMath::Matrix::CreateTranslation(m_Player->GetPosition());
