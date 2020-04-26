@@ -16,6 +16,10 @@ public:
 	Corridor(ID3D11Device*, float, float, float, float);
 
 	SimpleMath::Vector3 GetPosition();
+	float GetLeft();
+	float GetRight();
+	float GetTop();
+	float GetBottom();
 	ID3D11ShaderResourceView* GetTexture();
 	void Render(ID3D11DeviceContext*);
 };

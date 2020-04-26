@@ -6,8 +6,8 @@ Player::Player(ID3D11Device * device)
 	shapeWidth = 0.2f;
 	shapeHeight = 0.3f;
 	shapeDepth = 0.0f;
-	speed = 1.5f;
-	shapePosition = SimpleMath::Vector3(25, 15, 0);
+	speed = 3.0f;
+	shapePosition = SimpleMath::Vector3(0.5f, 0.5f, 0);
 
 	shape.InitializeBox(device, shapeWidth, shapeHeight, shapeDepth);
 	CreateDDSTextureFromFile(device, L"greenShape.dds", nullptr, texture.ReleaseAndGetAddressOf());
@@ -60,26 +60,22 @@ ID3D11ShaderResourceView* Player::GetTexture()
 	return texture.Get();
 }
 
-void Player::CheckBoundaries(Boundary* boundary)
+void Player::CheckBoundaries(int** grid)
 {
-	float minX1, maxX1, minY1, maxY1, minZ1, maxZ1;
-	float minX2, maxX2, minY2, maxY2, minZ2, maxZ2;
+	float minX1, maxX1, minY1, maxY1;
+	float minX2, maxX2, minY2, maxY2;
 
 	//Player Rectangle
 	minX1 = shapePosition.x - (shapeWidth / 2.0f);
 	maxX1 = minX1 + shapeWidth;
 	minY1 = shapePosition.y - (shapeHeight / 2.0f);
 	maxY1 = minY1 + shapeHeight;
-	minZ1 = shapePosition.z - (shapeDepth / 2.0f);
-	maxZ1 = minZ1 + shapeDepth;
 
-	//Boundary Rectangle
-	minX2 = boundary->GetPosition().x - (boundary->GetWidth() / 2.0f);
-	maxX2 = minX2 + boundary->GetWidth();
-	minY2 = boundary->GetPosition().y - (boundary->GetHeight() / 2.0f);
-	maxY2 = minY2 + boundary->GetHeight();
-	minZ2 = boundary->GetPosition().z - (boundary->GetDepth() / 2.0f);
-	maxZ2 = minZ2 + boundary->GetDepth();
+	//Current Grid Cell
+	minX2 = (int)minX1;
+	maxX2 = minX2 + 1;
+	minY2 = (int)minY1;
+	maxY2 = minY2 + 1;
 
 	if (maxY1 > maxY2) //Right border
 		shapePosition.y = maxY2 - (shapeHeight / 2.0f);

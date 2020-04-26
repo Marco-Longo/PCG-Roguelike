@@ -10,6 +10,7 @@
 #include "Player.h"
 #include "CollisionDetection.h"
 #include "MapGenerator.h"
+#include "Grid.h"
 
 class Game final : public DX::IDeviceNotify
 {
@@ -98,6 +99,7 @@ private:
 	//Scene Objects
 	Player*																	m_Player;
 	MapGenerator*															m_MapGen;
+	Grid*																	m_Grid;
 
 	//RenderTextures
 	RenderTexture*															m_FirstRenderPass;

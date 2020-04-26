@@ -145,6 +145,7 @@ void Game::Update(DX::StepTimer const& timer)
 	if (m_gameInputCommands.resetLevel)
 	{
 		m_MapGen->ResetLevel();
+		m_Grid->InitialiseGrid();
 	}
 	/*
 	if (!m_cameraLock)
@@ -232,20 +233,17 @@ void Game::Update(DX::StepTimer const& timer)
 	}
 	m_Player->SetPosition(inputPos);
 
-	/*Check for collisions between scene objects
-	if (CollisionDetection::SAT(m_Player, *(m_MapGen->GetRoomsList())->begin()))
-		debugLine = L"DEBUG: Collision has occured";
-	else
-		debugLine = L"DEBUG: NO collision has occurred";
-	m_Player->CheckBoundaries(*(m_MapGen->GetRoomsList())->begin());
-	*/
+	//Check for collisions
+//	m_Player->CheckBoundaries(m_Grid->GetMatrix());
+	
+	//Update Camera and world matrix
 	m_Camera.setPosition(m_Player->GetPosition().x, m_Player->GetPosition().y, m_Camera.getPosition().z);
 	m_Camera.Update();
 	m_view = m_Camera.getCameraMatrix();
 	m_world = Matrix::Identity;
 	lastFrameCursorPos = Vector2(mousePos.x, mousePos.y);
 
-	//create our UI
+	//Create our UI
 	SetupGUI();
 
 #ifdef DXTK_AUDIO
@@ -298,10 +296,9 @@ void Game::Render()
 	// Set Rendering states
 	context->OMSetBlendState(m_states->Opaque(), nullptr, 0xFFFFFFFF);
 	context->OMSetDepthStencilState(m_states->DepthNone(), 0);
-	context->RSSetState(m_states->CullClockwise());
-//	context->RSSetState(m_states->Wireframe());
 
 	// Generated Map
+	context->RSSetState(m_states->CullClockwise());
 	//Corridors
 	std::vector<Corridor*>* hallsList = m_MapGen->GetHallsList();
 	for (std::vector<Corridor*>::iterator it = hallsList->begin(); it != hallsList->end(); it++)
@@ -328,8 +325,29 @@ void Game::Render()
 		m_BasicShaderPair.SetShaderParameters(context, &m_world, &m_view, &m_projection, &m_Light, bound->GetTexture());
 		bound->Render(context);
 	}
+
+	//Grid
+	context->RSSetState(m_states->Wireframe());
+	ModelClass cell = m_Grid->GetCell();
+	int** matrix = m_Grid->GetMatrix();
+	for (int i = 0; i < MAP_WIDTH; i++)
+		for (int j = 0; j < MAP_HEIGHT; j++)
+		{
+			if (matrix[i][j] != EMPTY)
+				continue;
+
+			m_world = SimpleMath::Matrix::Identity;
+			//Since every rectangle is shifted by width/2 and height/2, even the grid needs to be offset by 0.5f (which is 1.0f/2.0f)
+			SimpleMath::Matrix newPosition = SimpleMath::Matrix::CreateTranslation(i + 0.5f, j + 0.5f, 0);
+			m_world = m_world * newPosition;
+
+			m_BasicShaderPair.EnableShader(context);
+			m_BasicShaderPair.SetShaderParameters(context, &m_world, &m_view, &m_projection, &m_Light, NULL);
+			cell.Render(context);
+		}
 	
 	// Player
+	context->RSSetState(m_states->CullClockwise());
 	m_world = SimpleMath::Matrix::Identity;
 	SimpleMath::Matrix newPosition = SimpleMath::Matrix::CreateTranslation(m_Player->GetPosition());
 	m_world = m_world * newPosition;
@@ -585,6 +603,7 @@ void Game::CreateDeviceDependentResources()
 	//setup our player and boundary models
 	m_Player = new Player(device);
 	m_MapGen = MapGenerator::GetInstance(device);
+	m_Grid = new Grid(device);
 
 	//load and set up our Vertex and Pixel Shaders
 	m_BasicShaderPair.InitStandard(device, L"./light_vs.cso", L"./light_ps.cso");
@@ -629,8 +648,8 @@ void Game::SetupGUI()
 	ImGui::NewFrame();
 
 	ImGui::Begin("GUI Parameters");
-		ImGui::SliderFloat("PlayerX", m_Player->GetPositionX(), -3.0f, 3.0f);
-		ImGui::SliderFloat("PlayerY", m_Player->GetPositionY(), -3.0f, 3.0f);
+		ImGui::SliderFloat("PlayerX", m_Player->GetPositionX(), 0, MAP_WIDTH);
+		ImGui::SliderFloat("PlayerY", m_Player->GetPositionY(), 0, MAP_HEIGHT);
 	ImGui::End();
 }
 

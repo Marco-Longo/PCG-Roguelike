@@ -26,6 +26,6 @@ public:
 	void SetPosition(SimpleMath::Vector3);
 	ID3D11ShaderResourceView* GetTexture();
 
-	void CheckBoundaries(Boundary*);
+	void CheckBoundaries(int**);
 	void Render(ID3D11DeviceContext*);
 };

@@ -78,6 +78,9 @@
     <ClCompile Include="Corridor.cpp">
       <Filter>Game Elements</Filter>
     </ClCompile>
+    <ClCompile Include="Grid.cpp">
+      <Filter>BSP</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="imconfig.h">
@@ -157,6 +160,9 @@
     </ClInclude>
     <ClInclude Include="Corridor.h">
       <Filter>Game Elements</Filter>
+    </ClInclude>
+    <ClInclude Include="Grid.h">
+      <Filter>BSP</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
