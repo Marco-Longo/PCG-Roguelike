@@ -200,6 +200,7 @@
     <ClInclude Include="Shader.h" />
     <ClInclude Include="StepTimer.h" />
     <ClInclude Include="Terrain.h" />
+    <ClInclude Include="Treasure.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Boundary.cpp" />
@@ -231,6 +232,7 @@
     <ClCompile Include="RenderTexture.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="Terrain.cpp" />
+    <ClCompile Include="Treasure.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />

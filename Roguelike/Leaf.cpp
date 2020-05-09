@@ -77,17 +77,76 @@ void Leaf::CreateRooms()
 		roomSize = SimpleMath::Vector2(randBetween(min_size, width - 2), randBetween(min_size, height - 2));
 		//Place the room within the Leaf, but don't put it right against the side of the Leaf (that would merge rooms together)
 		roomPos = SimpleMath::Vector2(randBetween(1, width - roomSize.x - 1), randBetween(1, height - roomSize.y - 1));
-		room = new Boundary(dev, x + roomPos.x, y + roomPos.y, roomSize.x, roomSize.y, L"whiteBG.dds");
+		room = new Boundary(dev, x + roomPos.x, y + roomPos.y, roomSize.x, roomSize.y, L"floor.dds");
 	}
 }
 
+/*
 void Leaf::CreateHall(Boundary* l, Boundary* r)
 {
-	//Connect these two rooms together with hallways. Draw a straight line, or a pair of lines to make a right-angle to connect them.
+	//Connect the two rooms together with hallways. Draw a straight line, or a pair of lines to make a right-angle to connect them.
 	halls = new std::vector<Corridor*>();
 
-	SimpleMath::Vector2 point1 = SimpleMath::Vector2(randBetween(l->GetLeft() + 1, l->GetRight() - 1), randBetween(l->GetBottom() + 1, l->GetTop() - 2));
-	SimpleMath::Vector2 point2 = SimpleMath::Vector2(randBetween(r->GetLeft() + 1, r->GetRight() - 1), randBetween(r->GetBottom() + 1, r->GetTop() - 2));
+	//Attach the corridor to a random point in each room
+	SimpleMath::Vector2 lpoint = SimpleMath::Vector2(randBetween(l->GetLeft() + 1, l->GetRight() - 1), randBetween(l->GetBottom() + 1, l->GetTop() - 1));
+	SimpleMath::Vector2 rpoint = SimpleMath::Vector2(randBetween(r->GetLeft() + 1, r->GetRight() - 1), randBetween(r->GetBottom() + 1, r->GetTop() - 1));
+
+	//Always be sure that left point is on the left to simplify the code
+	if (lpoint.x > rpoint.x)
+	{
+		SimpleMath::Vector2 temp = lpoint;
+		lpoint = rpoint;
+		rpoint = temp;
+	}
+
+	int w = (int)(lpoint.x - rpoint.x);
+	int h = (int)(lpoint.y - rpoint.y);
+
+	//If the points are not aligned horizontally
+	if (w != 0) 
+	{
+		//Randomly choose to go horizontal then vertical or the opposite
+		if (((float)rand() / RAND_MAX) < 0.5f)
+		{
+			//Add a corridor to the right
+			halls->push_back(new Corridor(dev, lpoint.x, lpoint.y, std::abs(w) + 1, 1));
+
+			//If left point is below right point go up, otherwise go down
+			if (h < 0)
+				halls->push_back(new Corridor(dev, rpoint.x, lpoint.y, 1, std::abs(h)));
+			else
+				halls->push_back(new Corridor(dev, rpoint.x, lpoint.y, 1, -std::abs(h)));
+		}
+		else 
+		{
+			//If left point is below right point go up, otherwise go down
+			if (h < 0)
+				halls->push_back(new Corridor(dev, lpoint.x, lpoint.y, 1, std::abs(h)));
+			else
+				halls->push_back(new Corridor(dev, lpoint.x, rpoint.y, 1, std::abs(h)));
+
+			//Then go right
+			halls->push_back(new Corridor(dev, lpoint.x, rpoint.y, std::abs(w) + 1, 1));
+		}
+	}
+	else //If the points are aligned horizontally 
+	{
+		//Go up or down depending on the positions
+		if (h < 0)
+			halls->push_back(new Corridor(dev, (int)lpoint.x, (int)lpoint.y, 1, std::abs(h)));
+		else
+			halls->push_back(new Corridor(dev, (int)rpoint.x, (int)rpoint.y, 1, std::abs(h)));
+	}
+}
+*/
+
+void Leaf::CreateHall(Boundary* l, Boundary* r)
+{
+	//Connect the two rooms together with hallways. Draw a straight line, or a pair of lines to make a right-angle to connect them.
+	halls = new std::vector<Corridor*>();
+
+	SimpleMath::Vector2 point1 = SimpleMath::Vector2(randBetween(l->GetLeft() + 1, l->GetRight() - 2), randBetween(l->GetBottom() + 1, l->GetTop() - 2));
+	SimpleMath::Vector2 point2 = SimpleMath::Vector2(randBetween(r->GetLeft() + 1, r->GetRight() - 2), randBetween(r->GetBottom() + 1, r->GetTop() - 2));
 
 	float w = point2.x - point1.x;
 	float h = point2.y - point1.y;

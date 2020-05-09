@@ -31,7 +31,6 @@ Game::~Game()
 void Game::Initialize(HWND window, int width, int height)
 {
 	m_input.Initialise(window);
-	mouseSensitivity = 5.0f;
 
     m_deviceResources->SetWindow(window, width, height);
 
@@ -49,6 +48,7 @@ void Game::Initialize(HWND window, int width, int height)
 	ImGui::StyleColorsDark();
 	ImGui_ImplWin32_Init(window);
 	ImGui_ImplDX11_Init(m_deviceResources->GetD3DDevice(), m_deviceResources->GetD3DDeviceContext());
+	m_showGrid = false;
 
 	m_fullscreenRect.left = 0;
 	m_fullscreenRect.top = 0;
@@ -71,6 +71,17 @@ void Game::Initialize(HWND window, int width, int height)
 	m_Camera.setRotation(Vector3(-90.0f, -270.0f, 0.0f));
 	m_cameraLock = true;
 	
+	//initialise variables
+	winLine = L"LEVEL COMPLETED!";
+	winSubLine = L"Press 'R' to generate a new level";
+	levelComplete = false;
+	mouseSensitivity = 5.0f;
+	fps = 0;
+	dt = 0;
+	gt = 0;
+	record = 0;
+	record_text = L"Cleared Levels: " + std::to_wstring(record);
+
 #ifdef DXTK_AUDIO
     // Create DirectXTK for Audio objects
     AUDIO_ENGINE_FLAGS eflags = AudioEngine_Default;
@@ -126,8 +137,9 @@ void Game::Tick()
 // Updates the world.
 void Game::Update(DX::StepTimer const& timer)
 {
-	//Update delta time and fps
+	//Update delta time, game time and fps
 	dt = float(timer.GetElapsedSeconds());
+	gt += dt;
 	if (timer.GetFrameCount() == 1 || timer.GetFrameCount() % 120 == 0)
 	{
 		fps = int(1.0f / dt);
@@ -142,10 +154,16 @@ void Game::Update(DX::StepTimer const& timer)
 		m_Camera.setPosition(Vector3(0.0f, 0.0f, 15.0f));
 		m_Camera.setRotation(Vector3(-90.0f, -270.0f, 0.0f));
 	}
-	if (m_gameInputCommands.resetLevel)
+	if (m_gameInputCommands.resetLevel && levelComplete)
 	{
 		m_MapGen->ResetLevel();
 		m_Grid->InitialiseGrid();
+		m_Player->SetPosition(m_Grid->GetPlayerPos());
+		m_Treasure->SetPosition(m_Grid->GetTreasurePos());
+		m_Treasure->SetActive(true);
+		levelComplete = false;
+		record++;
+		record_text = L"Cleared Levels: " + std::to_wstring(record);
 	}
 	/*
 	if (!m_cameraLock)
@@ -218,10 +236,12 @@ void Game::Update(DX::StepTimer const& timer)
 	if (m_gameInputCommands.right)
 	{
 		inputPos.x += m_Player->GetSpeed() *dt;
+		m_Player->FlipSprite(true);
 	}
 	if (m_gameInputCommands.left)
 	{
 		inputPos.x -= m_Player->GetSpeed() * dt;
+		m_Player->FlipSprite(false);
 	}
 	if (m_gameInputCommands.down)
 	{
@@ -234,7 +254,12 @@ void Game::Update(DX::StepTimer const& timer)
 	m_Player->SetPosition(inputPos);
 
 	//Check for collisions
-//	m_Player->CheckBoundaries(m_Grid->GetMatrix());
+	m_Player->CheckBoundaries(m_Grid->GetMatrix());
+	if (CollisionDetection::SAT(m_Player, m_Treasure))
+	{
+		m_Treasure->SetActive(false);
+		levelComplete = true;
+	}
 	
 	//Update Camera and world matrix
 	m_Camera.setPosition(m_Player->GetPosition().x, m_Player->GetPosition().y, m_Camera.getPosition().z);
@@ -245,6 +270,7 @@ void Game::Update(DX::StepTimer const& timer)
 
 	//Create our UI
 	SetupGUI();
+	TimeFormat();
 
 #ifdef DXTK_AUDIO
     m_audioTimerAcc -= (float)timer.GetElapsedSeconds();
@@ -312,6 +338,7 @@ void Game::Render()
 		m_BasicShaderPair.SetShaderParameters(context, &m_world, &m_view, &m_projection, &m_Light, hall->GetTexture());
 		hall->Render(context);
 	}
+
 	// Rooms
 	std::vector<Boundary*>* roomsList = m_MapGen->GetRoomsList();
 	for (std::vector<Boundary*>::iterator it = roomsList->begin(); it != roomsList->end(); ++it)
@@ -327,46 +354,72 @@ void Game::Render()
 	}
 
 	//Grid
-	context->RSSetState(m_states->Wireframe());
-	ModelClass cell = m_Grid->GetCell();
-	int** matrix = m_Grid->GetMatrix();
-	for (int i = 0; i < MAP_WIDTH; i++)
-		for (int j = 0; j < MAP_HEIGHT; j++)
-		{
-			if (matrix[i][j] != EMPTY)
-				continue;
+	if (m_showGrid)
+	{
+		context->RSSetState(m_states->Wireframe());
+		ModelClass cell = m_Grid->GetCell();
+		int** matrix = m_Grid->GetMatrix();
+		for (int i = 0; i < MAP_WIDTH; i++)
+			for (int j = 0; j < MAP_HEIGHT; j++)
+			{
+				if (matrix[i][j] != EMPTY)
+					continue;
 
-			m_world = SimpleMath::Matrix::Identity;
-			//Since every rectangle is shifted by width/2 and height/2, even the grid needs to be offset by 0.5f (which is 1.0f/2.0f)
-			SimpleMath::Matrix newPosition = SimpleMath::Matrix::CreateTranslation(i + 0.5f, j + 0.5f, 0);
-			m_world = m_world * newPosition;
+				m_world = SimpleMath::Matrix::Identity;
+				//Since every rectangle is shifted by width/2 and height/2, even the grid needs to be offset by 0.5f (which is 1.0f/2.0f)
+				SimpleMath::Matrix newPosition = SimpleMath::Matrix::CreateTranslation(i + 0.5f, j + 0.5f, 0);
+				m_world = m_world * newPosition;
 
-			m_BasicShaderPair.EnableShader(context);
-			m_BasicShaderPair.SetShaderParameters(context, &m_world, &m_view, &m_projection, &m_Light, NULL);
-			cell.Render(context);
-		}
-	
-	// Player
+				m_BasicShaderPair.EnableShader(context);
+				m_BasicShaderPair.SetShaderParameters(context, &m_world, &m_view, &m_projection, &m_Light, m_texture1.Get());
+				cell.Render(context);
+			}
+	}
+
+	// Treasure
 	context->RSSetState(m_states->CullClockwise());
+	if (m_Treasure->IsActive())
+	{
+		m_world = SimpleMath::Matrix::Identity;
+		SimpleMath::Matrix newPosition = SimpleMath::Matrix::CreateTranslation(m_Treasure->GetPosition());
+		m_world = m_world * newPosition;
+
+		m_BasicShaderPair.EnableShader(context);
+		m_BasicShaderPair.SetShaderParameters(context, &m_world, &m_view, &m_projection, &m_Light, m_Treasure->GetTexture());
+		m_Treasure->Render(context);
+	}
+
+	// Player
+	context->OMSetBlendState(m_PlayerBlendState, 0, 0xFFFFFFFF);
 	m_world = SimpleMath::Matrix::Identity;
 	SimpleMath::Matrix newPosition = SimpleMath::Matrix::CreateTranslation(m_Player->GetPosition());
 	m_world = m_world * newPosition;
 
 	m_BasicShaderPair.EnableShader(context);
-	m_BasicShaderPair.SetShaderParameters(context, &m_world, &m_view, &m_projection, &m_Light, m_Player->GetTexture());
+	if (m_Player->IsFlipped())
+		m_BasicShaderPair.SetShaderParameters(context, &m_world, &m_view, &m_projection, &m_Light, m_Player->GetTextureFlipped());
+	else
+		m_BasicShaderPair.SetShaderParameters(context, &m_world, &m_view, &m_projection, &m_Light, m_Player->GetTexture());
 	m_Player->Render(context);
 
 	// Draw Text to the screen
 	m_sprites->Begin();
-	m_font->DrawString(m_sprites.get(), L"Advanced Procedural Methods", XMFLOAT2(10, 10), Colors::Yellow);
+	m_font->DrawString(m_sprites.get(), L"Advanced Procedural Methods - Roguelike", XMFLOAT2(10, 10), Colors::LightBlue);
 //	m_font->DrawString(m_sprites.get(), debugLine.c_str(), XMFLOAT2(10, 40), Colors::Yellow);
-	m_font->DrawString(m_sprites.get(), m_MapGen->debugLine.c_str(), XMFLOAT2(10, 40), Colors::Yellow);
-	m_font->DrawString(m_sprites.get(), fps_text.c_str(), XMFLOAT2(1810, 10), Colors::Orange);
+	m_font->DrawString(m_sprites.get(), gt_text.c_str(), XMFLOAT2(10, 1040), Colors::LightBlue);
+	m_font->DrawString(m_sprites.get(), fps_text.c_str(), XMFLOAT2(1810, 10), Colors::LightBlue);
+	m_font->DrawString(m_sprites.get(), record_text.c_str(), XMFLOAT2(1710, 1040), Colors::LightBlue);
+	if (levelComplete)
+	{
+		m_bigfont->DrawString(m_sprites.get(), winLine.c_str(), Vector2(960, 520), Colors::CornflowerBlue, 0.0f, m_bigfont->MeasureString(winLine.c_str()) / 2.0f);
+		m_smallfont->DrawString(m_sprites.get(), winSubLine.c_str(), Vector2(960, 580), Colors::CornflowerBlue, 0.0f, m_smallfont->MeasureString(winSubLine.c_str()) / 2.0f);
+	}
 	m_sprites->End();
 
 	// Render our GUI
 	ImGui::Render();
 	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+//	ImGui::EndFrame();
 
     // Show the new frame.
     m_deviceResources->Present();
@@ -382,7 +435,7 @@ void Game::Clear()
     auto renderTarget = m_deviceResources->GetRenderTargetView();
     auto depthStencil = m_deviceResources->GetDepthStencilView();
 
-    context->ClearRenderTargetView(renderTarget, Colors::CornflowerBlue);
+    context->ClearRenderTargetView(renderTarget, Colors::Black);
     context->ClearDepthStencilView(depthStencil, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
     context->OMSetRenderTargets(1, &renderTarget, depthStencil);
 
@@ -598,18 +651,34 @@ void Game::CreateDeviceDependentResources()
     m_fxFactory = std::make_unique<EffectFactory>(device);
     m_sprites = std::make_unique<SpriteBatch>(context);
     m_font = std::make_unique<SpriteFont>(device, L"SegoeUI_18.spritefont");
+    m_smallfont = std::make_unique<SpriteFont>(device, L"SmallFont.spritefont");
+    m_bigfont = std::make_unique<SpriteFont>(device, L"BigFont.spritefont");
 	m_batch = std::make_unique<PrimitiveBatch<VertexPositionColor>>(context);
 
 	//setup our player and boundary models
-	m_Player = new Player(device);
 	m_MapGen = MapGenerator::GetInstance(device);
 	m_Grid = new Grid(device);
+	m_Player = new Player(device, m_Grid->GetPlayerPos());
+	m_Treasure = new Treasure(device, m_Grid->GetTreasurePos());
 
+	//setup player custom blend state
+	D3D11_BLEND_DESC omDesc;
+	ZeroMemory(&omDesc,	sizeof(D3D11_BLEND_DESC));
+	omDesc.RenderTarget[0].BlendEnable = true;
+	omDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+	omDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+	omDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+	omDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+	omDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+	omDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	omDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+	device->CreateBlendState(&omDesc, &m_PlayerBlendState);
+	
 	//load and set up our Vertex and Pixel Shaders
 	m_BasicShaderPair.InitStandard(device, L"./light_vs.cso", L"./light_ps.cso");
 
 	//load Textures
-	CreateDDSTextureFromFile(device, L"seafloor.dds", nullptr, m_texture1.ReleaseAndGetAddressOf());
+	CreateDDSTextureFromFile(device, L"grayBG.dds", nullptr, m_texture1.ReleaseAndGetAddressOf());
 	CreateDDSTextureFromFile(device, L"grass.dds", nullptr,	m_texture2.ReleaseAndGetAddressOf());
 	CreateDDSTextureFromFile(device, L"rock.dds", nullptr,	m_texture3.ReleaseAndGetAddressOf());
 
@@ -642,15 +711,36 @@ void Game::CreateWindowSizeDependentResources()
 
 void Game::SetupGUI()
 {
-
 	ImGui_ImplDX11_NewFrame();
 	ImGui_ImplWin32_NewFrame();
 	ImGui::NewFrame();
 
-	ImGui::Begin("GUI Parameters");
-		ImGui::SliderFloat("PlayerX", m_Player->GetPositionX(), 0, MAP_WIDTH);
-		ImGui::SliderFloat("PlayerY", m_Player->GetPositionY(), 0, MAP_HEIGHT);
+	ImGui::Begin("Settings");
+//		ImGui::SliderFloat("PlayerX", m_Player->GetPositionX(), 0, MAP_WIDTH);
+//		ImGui::SliderFloat("PlayerY", m_Player->GetPositionY(), 0, MAP_HEIGHT);
+		if (ImGui::Button("Toggle Grid View", ImVec2(200, 40)))
+			m_showGrid = !m_showGrid;
 	ImGui::End();
+}
+
+void Game::TimeFormat()
+{
+	std::wstring min_text, sec_text;
+	float timeInSecond = gt;
+	int time = (int)timeInSecond;
+
+	int seconds = time % 60;
+	int minutes = (time / 60) % 60;
+	if (std::to_wstring(seconds).length() == 1)
+		sec_text = L"0" + std::to_wstring(seconds);
+	else
+		sec_text = std::to_wstring(seconds);
+	if (std::to_wstring(minutes).length() == 1)
+		min_text = L"0" + std::to_wstring(minutes);
+	else
+		min_text = std::to_wstring(minutes);
+	
+	gt_text = L"Time: " + min_text + L":" + sec_text;
 }
 
 void Game::OnDeviceLost()
@@ -659,6 +749,8 @@ void Game::OnDeviceLost()
     m_fxFactory.reset();
     m_sprites.reset();
     m_font.reset();
+    m_smallfont.reset();
+    m_bigfont.reset();
 	m_batch.reset();
 	m_testmodel.reset();
     m_batchInputLayout.Reset();

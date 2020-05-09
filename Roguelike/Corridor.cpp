@@ -10,7 +10,7 @@ Corridor::Corridor(ID3D11Device* device, float x, float y, float width, float he
 	shapePosition = SimpleMath::Vector3(x + shapeWidth / 2, y + shapeHeight / 2, 0);
 
 	shape.InitializeBox(device, shapeWidth, shapeHeight, shapeDepth);
-	CreateDDSTextureFromFile(device, L"grass.dds", nullptr, texture.ReleaseAndGetAddressOf());
+	CreateDDSTextureFromFile(device, L"halls.dds", nullptr, texture.ReleaseAndGetAddressOf());
 }
 
 SimpleMath::Vector3 Corridor::GetPosition()

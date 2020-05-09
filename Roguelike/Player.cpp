@@ -1,16 +1,18 @@
 #include "pch.h"
 #include "Player.h"
 
-Player::Player(ID3D11Device * device)
+Player::Player(ID3D11Device * device, SimpleMath::Vector3 pos)
 {
-	shapeWidth = 0.2f;
-	shapeHeight = 0.3f;
+	shapeWidth = 0.4f;
+	shapeHeight = 0.5f;
 	shapeDepth = 0.0f;
 	speed = 3.0f;
-	shapePosition = SimpleMath::Vector3(0.5f, 0.5f, 0);
+	shapePosition = pos;
 
 	shape.InitializeBox(device, shapeWidth, shapeHeight, shapeDepth);
-	CreateDDSTextureFromFile(device, L"greenShape.dds", nullptr, texture.ReleaseAndGetAddressOf());
+	CreateDDSTextureFromFile(device, L"character.dds", nullptr, texture.ReleaseAndGetAddressOf());
+	CreateDDSTextureFromFile(device, L"characterFlipped.dds", nullptr, textureFlipped.ReleaseAndGetAddressOf());
+	flipped = false;
 }
 
 float Player::GetWidth()
@@ -60,31 +62,70 @@ ID3D11ShaderResourceView* Player::GetTexture()
 	return texture.Get();
 }
 
+ID3D11ShaderResourceView* Player::GetTextureFlipped()
+{
+	return textureFlipped.Get();
+}
+
+void Player::FlipSprite(bool b)
+{
+	flipped = b;
+}
+
+bool Player::IsFlipped()
+{
+	return flipped;
+}
+
 void Player::CheckBoundaries(int** grid)
 {
-	float minX1, maxX1, minY1, maxY1;
-	float minX2, maxX2, minY2, maxY2;
+	//MinX = x, MaxX = y, MinY = z, MaxY = w
+	SimpleMath::Vector4 playerRect;
+	SimpleMath::Vector4 currCellRect;
+	SimpleMath::Vector4 neighbours[4];
 
 	//Player Rectangle
-	minX1 = shapePosition.x - (shapeWidth / 2.0f);
-	maxX1 = minX1 + shapeWidth;
-	minY1 = shapePosition.y - (shapeHeight / 2.0f);
-	maxY1 = minY1 + shapeHeight;
+	playerRect.x = shapePosition.x - (shapeWidth / 2.0f);
+	playerRect.y = playerRect.x + shapeWidth;
+	playerRect.z = shapePosition.y - (shapeHeight / 2.0f);
+	playerRect.w = playerRect.z + shapeHeight;
 
 	//Current Grid Cell
-	minX2 = (int)minX1;
-	maxX2 = minX2 + 1;
-	minY2 = (int)minY1;
-	maxY2 = minY2 + 1;
+	currCellRect.x = (int)shapePosition.x; //i
+	currCellRect.y = currCellRect.x + 1.0f;
+	currCellRect.z = (int)shapePosition.y; //j
+	currCellRect.w = currCellRect.z + 1.0f;
 
-	if (maxY1 > maxY2) //Right border
-		shapePosition.y = maxY2 - (shapeHeight / 2.0f);
-	if (minY1 < minY2) //Left border
-		shapePosition.y = minY2 + (shapeHeight / 2.0f);
-	if (maxX1 > maxX2) //Top border
-		shapePosition.x = maxX2 - (shapeWidth / 2.0f);
-	if (minX1 < minX2) //Bottom border
-		shapePosition.x = minX2 + (shapeWidth / 2.0f);
+	//Neighbours: MinX = x (i), MaxX = y, MinY = z (j), MaxY = w
+	neighbours[0] = SimpleMath::Vector4(currCellRect.x, currCellRect.x + 1, currCellRect.z + 1, currCellRect.z + 2); //Top
+	neighbours[1] = SimpleMath::Vector4(currCellRect.x - 1, currCellRect.x, currCellRect.z, currCellRect.z + 1); //Left
+	neighbours[2] = SimpleMath::Vector4(currCellRect.x, currCellRect.x + 1, currCellRect.z - 1, currCellRect.z); //Bottom
+	neighbours[3] = SimpleMath::Vector4(currCellRect.x + 1, currCellRect.x + 2, currCellRect.z, currCellRect.z + 1); //Right
+
+	//Top
+	if (grid[(int)neighbours[0].x][(int)neighbours[0].z] == 0) //Top neighbour cell is empty
+	{
+		if (playerRect.w > currCellRect.w) //Top border
+			shapePosition.y = currCellRect.w - (shapeHeight / 2.0f);
+	}
+	//Left
+	if (grid[(int)neighbours[1].x][(int)neighbours[1].z] == 0) //Left neighbour cell is empty
+	{
+		if (playerRect.x < currCellRect.x) //Left border
+			shapePosition.x = currCellRect.x + (shapeWidth / 2.0f);
+	}
+	//Bottom
+	if (grid[(int)neighbours[2].x][(int)neighbours[2].z] == 0) //Bottom neighbour cell is empty
+	{
+		if (playerRect.z < currCellRect.z) //Bottom border
+			shapePosition.y = currCellRect.z + (shapeHeight / 2.0f);
+	}
+	//Right
+	if (grid[(int)neighbours[3].x][(int)neighbours[3].z] == 0) //Right neighbour cell is empty
+	{
+		if (playerRect.y > currCellRect.y) //Right border
+			shapePosition.x = currCellRect.y - (shapeWidth / 2.0f);
+	}
 }
 
 void Player::Render(ID3D11DeviceContext* context)

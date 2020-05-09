@@ -81,6 +81,9 @@
     <ClCompile Include="Grid.cpp">
       <Filter>BSP</Filter>
     </ClCompile>
+    <ClCompile Include="Treasure.cpp">
+      <Filter>Game Elements</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="imconfig.h">
@@ -163,6 +166,9 @@
     </ClInclude>
     <ClInclude Include="Grid.h">
       <Filter>BSP</Filter>
+    </ClInclude>
+    <ClInclude Include="Treasure.h">
+      <Filter>Game Elements</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

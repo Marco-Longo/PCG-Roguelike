@@ -11,6 +11,7 @@
 #include "CollisionDetection.h"
 #include "MapGenerator.h"
 #include "Grid.h"
+#include "Treasure.h"
 
 class Game final : public DX::IDeviceNotify
 {
@@ -58,6 +59,7 @@ private:
     void CreateDeviceDependentResources();
     void CreateWindowSizeDependentResources();
 	void SetupGUI();
+	void TimeFormat();
 
     // Device resources.
     std::unique_ptr<DX::DeviceResources>    m_deviceResources;
@@ -75,6 +77,8 @@ private:
     std::unique_ptr<DirectX::EffectFactory>                                 m_fxFactory;
     std::unique_ptr<DirectX::SpriteBatch>                                   m_sprites;
     std::unique_ptr<DirectX::SpriteFont>                                    m_font;
+    std::unique_ptr<DirectX::SpriteFont>                                    m_smallfont;
+    std::unique_ptr<DirectX::SpriteFont>                                    m_bigfont;
 
 	//Scene Objects
 	std::unique_ptr<DirectX::PrimitiveBatch<DirectX::VertexPositionColor>>  m_batch;
@@ -87,6 +91,7 @@ private:
 	//Cameras
 	Camera																	m_Camera;
 	bool																	m_cameraLock;
+	bool																	m_showGrid;
 
 	//Textures 
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView>                        m_texture1;
@@ -95,9 +100,11 @@ private:
 
 	//Shaders
 	Shader																	m_BasicShaderPair;
+	ID3D11BlendState*														m_PlayerBlendState;
 
 	//Scene Objects
 	Player*																	m_Player;
+	Treasure*																m_Treasure;
 	MapGenerator*															m_MapGen;
 	Grid*																	m_Grid;
 
@@ -106,8 +113,13 @@ private:
 	RECT																	m_fullscreenRect;
 	RECT																	m_CameraViewRect;
 	
-	//Collision Detection
+	//Auxiliary Variables
 	std::wstring															debugLine;
+	std::wstring															winLine;
+	std::wstring															winSubLine;
+	bool																	levelComplete;
+	int																		record;
+	std::wstring															record_text;
 
 #ifdef DXTK_AUDIO
     std::unique_ptr<DirectX::AudioEngine>                                   m_audEngine;
@@ -134,6 +146,8 @@ private:
 	float																	dt;
 	int																		fps;
 	std::wstring															fps_text;
+	float																	gt;
+	std::wstring															gt_text;
 
 	//Mouse State
 	DirectX::SimpleMath::Vector2											lastFrameCursorPos;

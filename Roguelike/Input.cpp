@@ -68,14 +68,14 @@ void Input::Update()
 	if (kb.S)	m_GameInput.down = true;
 	else		m_GameInput.down = false;
 
-	//R key
-	if (kb.R)
+	//Space key
+	if (kb.Space)
 		m_GameInput.resetView = true;
 	else
 		m_GameInput.resetView = false;
 
-	//Space key
-	if (m_KeyboardTracker.IsKeyPressed(DirectX::Keyboard::Keys::Space))
+	//R key
+	if (m_KeyboardTracker.IsKeyPressed(DirectX::Keyboard::Keys::R))
 		m_GameInput.resetLevel = true;
 	else
 		m_GameInput.resetLevel = false;
