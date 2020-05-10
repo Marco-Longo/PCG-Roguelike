@@ -60,6 +60,7 @@ private:
     void CreateWindowSizeDependentResources();
 	void SetupGUI();
 	void TimeFormat();
+	void RenderTexturePass1();
 
     // Device resources.
     std::unique_ptr<DX::DeviceResources>    m_deviceResources;
@@ -90,6 +91,7 @@ private:
 
 	//Cameras
 	Camera																	m_Camera;
+	Camera																	m_Camera1;
 	bool																	m_cameraLock;
 	bool																	m_showGrid;
 
@@ -114,11 +116,12 @@ private:
 	RECT																	m_CameraViewRect;
 	
 	//Auxiliary Variables
+	bool																	levelComplete;
+	bool																	enableMinimap;
+	int																		record;
 	std::wstring															debugLine;
 	std::wstring															winLine;
 	std::wstring															winSubLine;
-	bool																	levelComplete;
-	int																		record;
 	std::wstring															record_text;
 
 #ifdef DXTK_AUDIO
@@ -140,13 +143,14 @@ private:
 	//Matrices
     DirectX::SimpleMath::Matrix                                             m_world;
     DirectX::SimpleMath::Matrix                                             m_view;
+    DirectX::SimpleMath::Matrix                                             m_view1;
     DirectX::SimpleMath::Matrix                                             m_projection;
 
 	//Time Variables
 	float																	dt;
+	float																	gt;
 	int																		fps;
 	std::wstring															fps_text;
-	float																	gt;
 	std::wstring															gt_text;
 
 	//Mouse State

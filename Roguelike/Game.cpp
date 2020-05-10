@@ -48,17 +48,16 @@ void Game::Initialize(HWND window, int width, int height)
 	ImGui::StyleColorsDark();
 	ImGui_ImplWin32_Init(window);
 	ImGui_ImplDX11_Init(m_deviceResources->GetD3DDevice(), m_deviceResources->GetD3DDeviceContext());
-	m_showGrid = false;
 
-	m_fullscreenRect.left = 0;
-	m_fullscreenRect.top = 0;
-	m_fullscreenRect.right = 800;
-	m_fullscreenRect.bottom = 600;
+	m_fullscreenRect.left = 10;
+	m_fullscreenRect.top = 50;
+	m_fullscreenRect.right = 510;
+	m_fullscreenRect.bottom = 350;
 
-	m_CameraViewRect.left = 500;
-	m_CameraViewRect.top = 0;
-	m_CameraViewRect.right = 800;
-	m_CameraViewRect.bottom = 240;
+	m_CameraViewRect.left = 10 * (m_deviceResources->GetWindowWidth() / 1920.0f);
+	m_CameraViewRect.top = 50 * (m_deviceResources->GetWindowHeight() / 1080.0f);
+	m_CameraViewRect.right = 510 * (m_deviceResources->GetWindowWidth() / 1920.0f);
+	m_CameraViewRect.bottom = 350 * (m_deviceResources->GetWindowHeight() / 1080.0f);
 
 	//setup light
 	m_Light.setAmbientColour(1.0f, 1.0f, 1.0f, 1.0f);
@@ -67,20 +66,26 @@ void Game::Initialize(HWND window, int width, int height)
 //	m_Light.setDirection(-1.0f, -1.0f, 0.0f);
 
 	//setup camera
-	m_Camera.setPosition(Vector3(0.0f, 0.0f, 15.0f));
+	m_Camera.setPosition(Vector3(0.0f, 0.0f, 5.0f));
 	m_Camera.setRotation(Vector3(-90.0f, -270.0f, 0.0f));
 	m_cameraLock = true;
+
+	//setup camera1
+	m_Camera1.setPosition(Vector3(96.8f, -24.5f, 78.0f));
+	m_Camera1.setRotation(Vector3(-90.0f, -270.0f, 0.0f));
 	
-	//initialise variables
-	winLine = L"LEVEL COMPLETED!";
-	winSubLine = L"Press 'R' to generate a new level";
-	levelComplete = false;
-	mouseSensitivity = 5.0f;
+	//initialise auxiliary variables
 	fps = 0;
 	dt = 0;
 	gt = 0;
 	record = 0;
+	mouseSensitivity = 5.0f;
+	levelComplete = false;
+	m_showGrid = false;
+	enableMinimap = false;
 	record_text = L"Cleared Levels: " + std::to_wstring(record);
+	winLine = L"LEVEL COMPLETED!";
+	winSubLine = L"Press 'R' to generate a new level";
 
 #ifdef DXTK_AUDIO
     // Create DirectXTK for Audio objects
@@ -139,7 +144,8 @@ void Game::Update(DX::StepTimer const& timer)
 {
 	//Update delta time, game time and fps
 	dt = float(timer.GetElapsedSeconds());
-	gt += dt;
+	if (!levelComplete)
+		gt += dt;
 	if (timer.GetFrameCount() == 1 || timer.GetFrameCount() % 120 == 0)
 	{
 		fps = int(1.0f / dt);
@@ -151,7 +157,7 @@ void Game::Update(DX::StepTimer const& timer)
 	//Handle Input
 	if (m_gameInputCommands.resetView)
 	{
-		m_Camera.setPosition(Vector3(0.0f, 0.0f, 15.0f));
+		m_Camera.setPosition(Vector3(0.0f, 0.0f, 5.0f));
 		m_Camera.setRotation(Vector3(-90.0f, -270.0f, 0.0f));
 	}
 	if (m_gameInputCommands.resetLevel && levelComplete)
@@ -162,69 +168,18 @@ void Game::Update(DX::StepTimer const& timer)
 		m_Treasure->SetPosition(m_Grid->GetTreasurePos());
 		m_Treasure->SetActive(true);
 		levelComplete = false;
+		gt = 0;
 		record++;
 		record_text = L"Cleared Levels: " + std::to_wstring(record);
 	}
-	/*
-	if (!m_cameraLock)
-	{
-		if (m_gameInputCommands.right)
-		{
-			Vector3 position = m_Camera01.getPosition();
-			position += (m_Camera01.getRight() * m_Camera01.getMoveSpeed() * dt);
-			m_Camera01.setPosition(position);
-		}
-		if (m_gameInputCommands.left)
-		{
-			Vector3 position = m_Camera01.getPosition();
-			position -= (m_Camera01.getRight() * m_Camera01.getMoveSpeed() * dt);
-			m_Camera01.setPosition(position);
-		}
-		if (m_gameInputCommands.down)
-		{
-			Vector3 position = m_Camera01.getPosition();
-			position += (m_Camera01.getUp() * m_Camera01.getMoveSpeed() * dt);
-			m_Camera01.setPosition(position);
-		}
-		if (m_gameInputCommands.up)
-		{
-			Vector3 position = m_Camera01.getPosition();
-			position -= (m_Camera01.getUp() * m_Camera01.getMoveSpeed() * dt);
-			m_Camera01.setPosition(position);
-		}
-		if (m_gameInputCommands.forward)
-		{
-			Vector3 position = m_Camera01.getPosition();
-			position += (m_Camera01.getForward() * m_Camera01.getMoveSpeed() * mouseSensitivity * 2 * dt);
-			m_Camera01.setPosition(position);
-		}
-		if (m_gameInputCommands.back)
-		{
-			Vector3 position = m_Camera01.getPosition();
-			position -= (m_Camera01.getForward() * m_Camera01.getMoveSpeed() * mouseSensitivity * 2 * dt);
-			m_Camera01.setPosition(position);
-		}
-		if (m_gameInputCommands.rotate)
-		{
-			Vector3 rotation = m_Camera01.getRotation();
-			rotation.y += (mousePos.x - lastFrameCursorPos.x) / mouseSensitivity * m_Camera01.getRotationSpeed() * dt;
-			rotation.x += (lastFrameCursorPos.y - mousePos.y) / mouseSensitivity * m_Camera01.getRotationSpeed() * dt;
-			if (rotation.x < -170.0f)
-				rotation.x = -170.0f;
-			if (rotation.x > -10.0f)
-				rotation.x = -10.0f;
-			m_Camera01.setRotation(rotation);
-		}
-	}
-	*/
-	//Camera forward and back movement (DEBUG)
-	if (m_gameInputCommands.forward)
+	//Camera forward and back movement
+	if (m_gameInputCommands.forward && !m_cameraLock)
 	{
 		Vector3 position = m_Camera.getPosition();
 		position += (m_Camera.getForward() * m_Camera.getMoveSpeed() * mouseSensitivity * 2 * dt);
 		m_Camera.setPosition(position);
 	}
-	else if (m_gameInputCommands.back)
+	else if (m_gameInputCommands.back && !m_cameraLock)
 	{
 		Vector3 position = m_Camera.getPosition();
 		position -= (m_Camera.getForward() * m_Camera.getMoveSpeed() * mouseSensitivity * 2 * dt);
@@ -232,26 +187,29 @@ void Game::Update(DX::StepTimer const& timer)
 	}
 
 	//Player commands
-	Vector3 inputPos = m_Player->GetPosition();
-	if (m_gameInputCommands.right)
+	if (!levelComplete)
 	{
-		inputPos.x += m_Player->GetSpeed() *dt;
-		m_Player->FlipSprite(true);
+		Vector3 inputPos = m_Player->GetPosition();
+		if (m_gameInputCommands.right)
+		{
+			inputPos.x += m_Player->GetSpeed() * dt;
+			m_Player->FlipSprite(true);
+		}
+		if (m_gameInputCommands.left)
+		{
+			inputPos.x -= m_Player->GetSpeed() * dt;
+			m_Player->FlipSprite(false);
+		}
+		if (m_gameInputCommands.down)
+		{
+			inputPos.y -= m_Player->GetSpeed() * dt;
+		}
+		if (m_gameInputCommands.up)
+		{
+			inputPos.y += m_Player->GetSpeed() * dt;
+		}
+		m_Player->SetPosition(inputPos);
 	}
-	if (m_gameInputCommands.left)
-	{
-		inputPos.x -= m_Player->GetSpeed() * dt;
-		m_Player->FlipSprite(false);
-	}
-	if (m_gameInputCommands.down)
-	{
-		inputPos.y -= m_Player->GetSpeed() * dt;
-	}
-	if (m_gameInputCommands.up)
-	{
-		inputPos.y += m_Player->GetSpeed() * dt;
-	}
-	m_Player->SetPosition(inputPos);
 
 	//Check for collisions
 	m_Player->CheckBoundaries(m_Grid->GetMatrix());
@@ -261,10 +219,12 @@ void Game::Update(DX::StepTimer const& timer)
 		levelComplete = true;
 	}
 	
-	//Update Camera and world matrix
+	//Update Cameras and World Matrices
 	m_Camera.setPosition(m_Player->GetPosition().x, m_Player->GetPosition().y, m_Camera.getPosition().z);
 	m_Camera.Update();
 	m_view = m_Camera.getCameraMatrix();
+	m_Camera1.Update();
+	m_view1 = m_Camera1.getCameraMatrix();
 	m_world = Matrix::Identity;
 	lastFrameCursorPos = Vector2(mousePos.x, mousePos.y);
 
@@ -322,10 +282,13 @@ void Game::Render()
 	// Set Rendering states
 	context->OMSetBlendState(m_states->Opaque(), nullptr, 0xFFFFFFFF);
 	context->OMSetDepthStencilState(m_states->DepthNone(), 0);
+	context->RSSetState(m_states->CullClockwise());
+
+	// Create our render to texture.
+	RenderTexturePass1();
 
 	// Generated Map
-	context->RSSetState(m_states->CullClockwise());
-	//Corridors
+	// Corridors
 	std::vector<Corridor*>* hallsList = m_MapGen->GetHallsList();
 	for (std::vector<Corridor*>::iterator it = hallsList->begin(); it != hallsList->end(); it++)
 	{
@@ -353,7 +316,7 @@ void Game::Render()
 		bound->Render(context);
 	}
 
-	//Grid
+	// Grid
 	if (m_showGrid)
 	{
 		context->RSSetState(m_states->Wireframe());
@@ -405,16 +368,24 @@ void Game::Render()
 	// Draw Text to the screen
 	m_sprites->Begin();
 	m_font->DrawString(m_sprites.get(), L"Advanced Procedural Methods - Roguelike", XMFLOAT2(10, 10), Colors::LightBlue);
-//	m_font->DrawString(m_sprites.get(), debugLine.c_str(), XMFLOAT2(10, 40), Colors::Yellow);
-	m_font->DrawString(m_sprites.get(), gt_text.c_str(), XMFLOAT2(10, 1040), Colors::LightBlue);
-	m_font->DrawString(m_sprites.get(), fps_text.c_str(), XMFLOAT2(1810, 10), Colors::LightBlue);
-	m_font->DrawString(m_sprites.get(), record_text.c_str(), XMFLOAT2(1710, 1040), Colors::LightBlue);
+	m_font->DrawString(m_sprites.get(), fps_text.c_str(), XMFLOAT2(m_deviceResources->GetWindowWidth() - 110, 10), Colors::LightBlue);
+	m_font->DrawString(m_sprites.get(), gt_text.c_str(), XMFLOAT2(10, m_deviceResources->GetWindowHeight() - 40), Colors::LightBlue);
+	m_font->DrawString(m_sprites.get(), record_text.c_str(), XMFLOAT2(m_deviceResources->GetWindowWidth() - 205, m_deviceResources->GetWindowHeight() - 40), Colors::LightBlue);
 	if (levelComplete)
 	{
-		m_bigfont->DrawString(m_sprites.get(), winLine.c_str(), Vector2(960, 520), Colors::CornflowerBlue, 0.0f, m_bigfont->MeasureString(winLine.c_str()) / 2.0f);
-		m_smallfont->DrawString(m_sprites.get(), winSubLine.c_str(), Vector2(960, 580), Colors::CornflowerBlue, 0.0f, m_smallfont->MeasureString(winSubLine.c_str()) / 2.0f);
+		m_bigfont->DrawString(m_sprites.get(), winLine.c_str(), Vector2(m_deviceResources->GetWindowWidth() / 2, (m_deviceResources->GetWindowHeight() - 40) / 2), Colors::CornflowerBlue, 0.0f, m_bigfont->MeasureString(winLine.c_str()) / 2.0f);
+		m_smallfont->DrawString(m_sprites.get(), winSubLine.c_str(), Vector2(m_deviceResources->GetWindowWidth() / 2, (m_deviceResources->GetWindowHeight() + 80) / 2), Colors::CornflowerBlue, 0.0f, m_smallfont->MeasureString(winSubLine.c_str()) / 2.0f);
 	}
 	m_sprites->End();
+
+	// Draw our sprite with the render texture displayed on it.
+	if (enableMinimap)
+	{
+		// Render on sprite
+		m_sprites->Begin();
+		m_sprites->Draw(m_FirstRenderPass->getShaderResourceView(), m_fullscreenRect);
+		m_sprites->End();
+	}
 
 	// Render our GUI
 	ImGui::Render();
@@ -445,139 +416,6 @@ void Game::Clear()
 
     m_deviceResources->PIXEndEvent();
 }
-
-/*
-//COLLISION DETECTION FUNCTIONS
-
-void Game::MoveAI()
-{
-	float speed = 1.5f;
-	float minX1, maxX1, minY1, maxY1, minZ1, maxZ1;
-	float minX2, maxX2, minY2, maxY2, minZ2, maxZ2;
-
-	//AI Rectangle
-	minX1 = m_AIModel.GetCentre().x - (m_AIModel.GetWidth() / 2.0f);
-	maxX1 = minX1 + m_AIModel.GetWidth();
-	minY1 = m_AIModel.GetCentre().y - (m_AIModel.GetHeight() / 2.0f);
-	maxY1 = minY1 + m_AIModel.GetHeight();
-	minZ1 = m_AIModel.GetCentre().z - (m_AIModel.GetDepth() / 2.0f);
-	maxZ1 = minZ1 + m_AIModel.GetDepth();
-
-	//Boundary Rectangle
-	minX2 = m_BoundaryModel.GetCentre().x - (m_BoundaryModel.GetWidth() / 2.0f);
-	maxX2 = minX2 + m_BoundaryModel.GetWidth();
-	minY2 = m_BoundaryModel.GetCentre().y - (m_BoundaryModel.GetHeight() / 2.0f);
-	maxY2 = minY2 + m_BoundaryModel.GetHeight();
-	minZ2 = m_BoundaryModel.GetCentre().z - (m_BoundaryModel.GetDepth() / 2.0f);
-	maxZ2 = minZ2 + m_BoundaryModel.GetDepth();
-
-	if (maxZ1 > maxZ2 || (minZ1 < minZ2) || (maxX1 > maxX2) || (minX1 < minX2)) //Collision with borders
-		m_aiDirection = (m_aiDirection + (rand() % 4)) % 4;
-
-	if (m_aiDirection == 0)
-	{
-		m_aiPosition.x += speed * dt; //Up
-		m_aiPosition.z += speed * dt; //Right
-	}
-	else if (m_aiDirection == 1)
-	{
-		m_aiPosition.x -= speed * dt; //Down
-		m_aiPosition.z += speed * dt; //Right
-	}
-	else if (m_aiDirection == 2)
-	{
-		m_aiPosition.x += speed * dt; //Up
-		m_aiPosition.z -= speed * dt; //Left
-	}
-	else if (m_aiDirection == 3)
-	{
-		m_aiPosition.x -= speed * dt; //Down
-		m_aiPosition.z -= speed * dt; //Left
-	}
-}
-
-bool Game::SAT()
-{
-	float minX1, maxX1, minY1, maxY1, minZ1, maxZ1;
-	float minX2, maxX2, minY2, maxY2, minZ2, maxZ2;
-
-	minX1 = m_PlayerModel.GetCentre().x - (m_PlayerModel.GetWidth() / 2.0f);
-	maxX1 = minX1 + m_PlayerModel.GetWidth();
-	minY1 = m_PlayerModel.GetCentre().y - (m_PlayerModel.GetHeight() / 2.0f);
-	maxY1 = minY1 + m_PlayerModel.GetHeight();
-	minZ1 = m_PlayerModel.GetCentre().z - (m_PlayerModel.GetDepth() / 2.0f);
-	maxZ1 = minZ1 + m_PlayerModel.GetDepth();
-
-	minX2 = m_BoundaryModel.GetCentre().x - (m_BoundaryModel.GetWidth() / 2.0f);
-	maxX2 = minX2 + m_BoundaryModel.GetWidth();
-	minY2 = m_BoundaryModel.GetCentre().y - (m_BoundaryModel.GetHeight() / 2.0f);
-	maxY2 = minY2 + m_BoundaryModel.GetHeight();
-	minZ2 = m_BoundaryModel.GetCentre().z - (m_BoundaryModel.GetDepth() / 2.0f);
-	maxZ2 = minZ2 + m_BoundaryModel.GetDepth();
-
-	return  (minX1 <= maxX2 && maxX1 >= minX2) &&
-			(minY1 <= maxY2 && maxY1 >= minY2) &&
-			(minZ1 <= maxZ2 && maxZ1 >= minZ2);
-}
-
-void Game::CheckBoundaries()
-{
-	float minX1, maxX1, minY1, maxY1, minZ1, maxZ1;
-	float minX2, maxX2, minY2, maxY2, minZ2, maxZ2;
-
-	//Player Rectangle
-	minX1 = m_PlayerModel.GetCentre().x - (m_PlayerModel.GetWidth() / 2.0f);
-	maxX1 = minX1 + m_PlayerModel.GetWidth();
-	minY1 = m_PlayerModel.GetCentre().y - (m_PlayerModel.GetHeight() / 2.0f);
-	maxY1 = minY1 + m_PlayerModel.GetHeight();
-	minZ1 = m_PlayerModel.GetCentre().z - (m_PlayerModel.GetDepth() / 2.0f);
-	maxZ1 = minZ1 + m_PlayerModel.GetDepth();
-
-	//Boundary Rectangle
-	minX2 = m_BoundaryModel.GetCentre().x - (m_BoundaryModel.GetWidth() / 2.0f);
-	maxX2 = minX2 + m_BoundaryModel.GetWidth();
-	minY2 = m_BoundaryModel.GetCentre().y - (m_BoundaryModel.GetHeight() / 2.0f);
-	maxY2 = minY2 + m_BoundaryModel.GetHeight();
-	minZ2 = m_BoundaryModel.GetCentre().z - (m_BoundaryModel.GetDepth() / 2.0f);
-	maxZ2 = minZ2 + m_BoundaryModel.GetDepth();
-
-	if (maxZ1 > maxZ2) //Right border
-		m_playerPosition.z = maxZ2 - (m_PlayerModel.GetDepth() / 2.0f);
-	if (minZ1 < minZ2) //Left border
-		m_playerPosition.z = minZ2 + (m_PlayerModel.GetDepth() / 2.0f);
-	if (maxX1 > maxX2) //Top border
-		m_playerPosition.x = maxX2 - (m_PlayerModel.GetWidth() / 2.0f);
-	if (minX1 < minX2) //Bottom border
-		m_playerPosition.x = minX2 + (m_PlayerModel.GetWidth() / 2.0f);
-}
-
-void Game::CheckCollisions(ModelClass player, ModelClass other)
-{
-	float minX1, maxX1, minY1, maxY1, minZ1, maxZ1;
-	float minX2, maxX2, minY2, maxY2, minZ2, maxZ2;
-
-	//Player Rectangle
-	minX1 = player.GetCentre().x - (player.GetWidth() / 2.0f);
-	maxX1 = minX1 + player.GetWidth();
-	minY1 = player.GetCentre().y - (player.GetHeight() / 2.0f);
-	maxY1 = minY1 + player.GetHeight();
-	minZ1 = player.GetCentre().z - (player.GetDepth() / 2.0f);
-	maxZ1 = minZ1 + player.GetDepth();
-
-	//Other Rectangle
-	minX2 = other.GetCentre().x - (other.GetWidth() / 2.0f);
-	maxX2 = minX2 + other.GetWidth();
-	minY2 = other.GetCentre().y - (other.GetHeight() / 2.0f);
-	maxY2 = minY2 + other.GetHeight();
-	minZ2 = other.GetCentre().z - (other.GetDepth() / 2.0f);
-	maxZ2 = minZ2 + other.GetDepth();
-
-	if ((minX1 <= maxX2 && maxX1 >= minX2) && (minY1 <= maxY2 && maxY1 >= minY2) && (minZ1 <= maxZ2 && maxZ1 >= minZ2)) //Collision Occurred
-	{
-		//...
-	}	
-}
-*/
 #pragma endregion
 
 #pragma region Message Handlers
@@ -635,8 +473,8 @@ void Game::NewAudioDevice()
 // Properties
 void Game::GetDefaultSize(int& width, int& height) const
 {
-    width = 800;
-    height = 600;
+    width = 1920;
+    height = 1080;
 }
 #pragma endregion
 
@@ -679,11 +517,11 @@ void Game::CreateDeviceDependentResources()
 
 	//load Textures
 	CreateDDSTextureFromFile(device, L"grayBG.dds", nullptr, m_texture1.ReleaseAndGetAddressOf());
-	CreateDDSTextureFromFile(device, L"grass.dds", nullptr,	m_texture2.ReleaseAndGetAddressOf());
-	CreateDDSTextureFromFile(device, L"rock.dds", nullptr,	m_texture3.ReleaseAndGetAddressOf());
+	CreateDDSTextureFromFile(device, L"greenShape.dds", nullptr, m_texture2.ReleaseAndGetAddressOf());
+	CreateDDSTextureFromFile(device, L"yellowBG.dds", nullptr, m_texture3.ReleaseAndGetAddressOf());
 
 	//initialise Render to texture
-	m_FirstRenderPass = new RenderTexture(device, 800, 600, 1, 2);	//for our rendering, we dont use the last two properties, but they can't be zero and they can't be the same. 
+	m_FirstRenderPass = new RenderTexture(device, 500, 300, 1, 2); //for our rendering, we dont use the last two properties, but they can't be zero and they can't be the same. 
 }
 
 // Allocate all memory resources that change on a window SizeChanged event.
@@ -705,7 +543,7 @@ void Game::CreateWindowSizeDependentResources()
         fovAngleY,
         aspectRatio,
         0.01f,
-        100.0f
+        1000.0f
     );
 }
 
@@ -720,6 +558,10 @@ void Game::SetupGUI()
 //		ImGui::SliderFloat("PlayerY", m_Player->GetPositionY(), 0, MAP_HEIGHT);
 		if (ImGui::Button("Toggle Grid View", ImVec2(200, 40)))
 			m_showGrid = !m_showGrid;
+		if (ImGui::Button("Toggle Camera Lock", ImVec2(200, 40)))
+			m_cameraLock = !m_cameraLock;
+		if (ImGui::Button("Toggle Minimap", ImVec2(200, 40)))
+			enableMinimap = !enableMinimap;
 	ImGui::End();
 }
 
@@ -741,6 +583,70 @@ void Game::TimeFormat()
 		min_text = std::to_wstring(minutes);
 	
 	gt_text = L"Time: " + min_text + L":" + sec_text;
+}
+
+void Game::RenderTexturePass1()
+{
+	auto context = m_deviceResources->GetD3DDeviceContext();
+	auto renderTargetView = m_deviceResources->GetRenderTargetView();
+	auto depthTargetView = m_deviceResources->GetDepthStencilView();
+	// Set the render target to be the render to texture.
+	m_FirstRenderPass->setRenderTarget(context);
+	// Clear the render to texture.
+	m_FirstRenderPass->clearRenderTarget(context, 0.8f, 0.8f, 0.8f, 1.0f);
+
+	// Render the scene using the secondary camera view
+	// Corridors
+	std::vector<Corridor*>* hallsList = m_MapGen->GetHallsList();
+	for (std::vector<Corridor*>::iterator it = hallsList->begin(); it != hallsList->end(); it++)
+	{
+		Corridor* hall = *it;
+		m_world = SimpleMath::Matrix::Identity;
+		SimpleMath::Matrix newPosition = SimpleMath::Matrix::CreateTranslation(hall->GetPosition());
+		m_world = m_world * newPosition;
+
+		m_BasicShaderPair.EnableShader(context);
+		m_BasicShaderPair.SetShaderParameters(context, &m_world, &m_view1, &m_projection, &m_Light, hall->GetTexture());
+		hall->Render(context);
+	}
+
+	// Rooms
+	std::vector<Boundary*>* roomsList = m_MapGen->GetRoomsList();
+	for (std::vector<Boundary*>::iterator it = roomsList->begin(); it != roomsList->end(); ++it)
+	{
+		Boundary* bound = *it;
+		m_world = SimpleMath::Matrix::Identity;
+		SimpleMath::Matrix newPosition = SimpleMath::Matrix::CreateTranslation(bound->GetPosition());
+		m_world = m_world * newPosition;
+
+		m_BasicShaderPair.EnableShader(context);
+		m_BasicShaderPair.SetShaderParameters(context, &m_world, &m_view1, &m_projection, &m_Light, bound->GetTexture());
+		bound->Render(context);
+	}
+
+	// Treasure
+	if (m_Treasure->IsActive())
+	{
+		m_world = SimpleMath::Matrix::Identity;
+		SimpleMath::Matrix newPosition = SimpleMath::Matrix::CreateTranslation(m_Treasure->GetPosition());
+		m_world = m_world * newPosition;
+
+		m_BasicShaderPair.EnableShader(context);
+		m_BasicShaderPair.SetShaderParameters(context, &m_world, &m_view1, &m_projection, &m_Light, m_texture3.Get());
+		m_Treasure->Render(context);
+	}
+
+	// Player
+	m_world = SimpleMath::Matrix::Identity;
+	SimpleMath::Matrix newPosition = SimpleMath::Matrix::CreateTranslation(m_Player->GetPosition());
+	m_world = m_world * newPosition;
+
+	m_BasicShaderPair.EnableShader(context);
+	m_BasicShaderPair.SetShaderParameters(context, &m_world, &m_view1, &m_projection, &m_Light, m_texture2.Get());
+	m_Player->Render(context);
+
+	// Reset the render target back to the original back buffer and not the render to texture anymore.	
+	context->OMSetRenderTargets(1, &renderTargetView, depthTargetView);
 }
 
 void Game::OnDeviceLost()

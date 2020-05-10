@@ -28,6 +28,8 @@ namespace DX
         void HandleDeviceLost();
         void RegisterDeviceNotify(IDeviceNotify* deviceNotify) { m_deviceNotify = deviceNotify; }
         void Present();
+        int GetWindowWidth();
+        int GetWindowHeight();
 
         // Device Accessors.
         RECT GetOutputSize() const { return m_outputSize; }

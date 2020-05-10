@@ -3,6 +3,18 @@ C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Rogue
 C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\CollisionDetection.h(4,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
 C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\CollisionDetection.h(10,2): warning C4091: 'static ': ignored on left of 'CollisionDetection' when no variable is declared
 C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Boundary.h(2,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
-C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Game.cpp(269,51): warning C4244: 'argument': conversion from 'LONG' to 'float', possible loss of data
-C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Game.cpp(269,39): warning C4244: 'argument': conversion from 'LONG' to 'float', possible loss of data
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Game.cpp(57,29): warning C4244: '=': conversion from 'float' to 'LONG', possible loss of data
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Game.cpp(58,28): warning C4244: '=': conversion from 'float' to 'LONG', possible loss of data
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Game.cpp(59,31): warning C4244: '=': conversion from 'float' to 'LONG', possible loss of data
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Game.cpp(60,32): warning C4244: '=': conversion from 'float' to 'LONG', possible loss of data
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Game.cpp(229,51): warning C4244: 'argument': conversion from 'LONG' to 'float', possible loss of data
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Game.cpp(229,39): warning C4244: 'argument': conversion from 'LONG' to 'float', possible loss of data
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Game.cpp(371,101): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Game.cpp(372,105): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Game.cpp(373,148): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Game.cpp(373,104): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Game.cpp(376,152): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Game.cpp(376,103): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Game.cpp(377,157): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Game.cpp(377,108): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
   Roguelike.vcxproj -> C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Bin\Desktop_2015\Win32\Debug\Roguelike.exe

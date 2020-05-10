@@ -517,3 +517,13 @@ void DeviceResources::GetHardwareAdapter(IDXGIAdapter1** ppAdapter)
 
     *ppAdapter = adapter.Detach();
 }
+
+int DeviceResources::GetWindowWidth()
+{
+    return m_outputSize.right - m_outputSize.left;
+}
+
+int DeviceResources::GetWindowHeight()
+{
+    return m_outputSize.bottom - m_outputSize.top;
+}
