@@ -1,0 +1,109 @@
+﻿  compilation object save succeeded; see C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Bin\Desktop_2015\x64\Release\colour_ps.cso
+  compilation object save succeeded; see C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Bin\Desktop_2015\x64\Release\colour_vs.cso
+  compilation object save succeeded; see C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Bin\Desktop_2015\x64\Release\light_ps.cso
+  compilation object save succeeded; see C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Bin\Desktop_2015\x64\Release\light_vs.cso
+  pch.cpp
+  Boundary.cpp
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Boundary.h(2,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+  Camera.cpp
+  CollisionDetection.cpp
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\CollisionDetection.h(3,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\CollisionDetection.h(4,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\CollisionDetection.h(10,2): warning C4091: 'static ': ignored on left of 'CollisionDetection' when no variable is declared
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\CollisionDetection.cpp(6,43): warning C4101: 'maxZ1': unreferenced local variable
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\CollisionDetection.cpp(7,43): warning C4101: 'maxZ2': unreferenced local variable
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\CollisionDetection.cpp(6,36): warning C4101: 'minZ1': unreferenced local variable
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\CollisionDetection.cpp(7,36): warning C4101: 'minZ2': unreferenced local variable
+  Corridor.cpp
+  DeviceResources.cpp
+  Game.cpp
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\CollisionDetection.h(3,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\CollisionDetection.h(4,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\CollisionDetection.h(10,2): warning C4091: 'static ': ignored on left of 'CollisionDetection' when no variable is declared
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Boundary.h(2,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Game.cpp(57,29): warning C4244: '=': conversion from 'float' to 'LONG', possible loss of data
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Game.cpp(58,28): warning C4244: '=': conversion from 'float' to 'LONG', possible loss of data
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Game.cpp(59,31): warning C4244: '=': conversion from 'float' to 'LONG', possible loss of data
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Game.cpp(60,32): warning C4244: '=': conversion from 'float' to 'LONG', possible loss of data
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Game.cpp(231,51): warning C4244: 'argument': conversion from 'LONG' to 'float', possible loss of data
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Game.cpp(231,39): warning C4244: 'argument': conversion from 'LONG' to 'float', possible loss of data
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Game.cpp(382,101): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Game.cpp(383,105): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Game.cpp(384,148): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Game.cpp(384,104): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Game.cpp(387,152): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Game.cpp(387,103): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Game.cpp(388,157): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Game.cpp(388,108): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+  Grid.cpp
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Boundary.h(2,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Grid.cpp(33,12): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Grid.cpp(34,14): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Grid.cpp(35,13): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Grid.cpp(36,11): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Grid.cpp(62,12): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Grid.cpp(63,14): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Grid.cpp(64,13): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Grid.cpp(65,11): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+  imgui.cpp
+  imgui_demo.cpp
+  imgui_draw.cpp
+  imgui_impl_dx11.cpp
+  imgui_impl_win32.cpp
+  imgui_widgets.cpp
+  Input.cpp
+  Leaf.cpp
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Boundary.h(2,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Leaf.cpp(77,79): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Leaf.cpp(77,45): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Leaf.cpp(79,67): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Leaf.cpp(79,108): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Leaf.cpp(79,84): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Leaf.cpp(79,44): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Leaf.cpp(148,95): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Leaf.cpp(148,76): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Leaf.cpp(148,145): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Leaf.cpp(148,128): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Leaf.cpp(148,112): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Leaf.cpp(148,62): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Leaf.cpp(149,95): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Leaf.cpp(149,76): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Leaf.cpp(149,145): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Leaf.cpp(149,128): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Leaf.cpp(149,112): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Leaf.cpp(149,62): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+  Light.cpp
+  Main.cpp
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\CollisionDetection.h(3,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\CollisionDetection.h(4,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\CollisionDetection.h(10,2): warning C4091: 'static ': ignored on left of 'CollisionDetection' when no variable is declared
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Boundary.h(2,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Main.cpp(46,19): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+  MapGenerator.cpp
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Boundary.h(2,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+  modelclass.cpp
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\modelclass.cpp(28,39): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\modelclass.cpp(29,37): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\modelclass.cpp(44,39): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\modelclass.cpp(45,37): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\modelclass.cpp(60,39): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\modelclass.cpp(61,37): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\modelclass.cpp(251,28): warning C4477: 'fscanf_s' : format string '%s' requires an argument of type 'unsigned int', but variadic argument 2 has type 'size_t'
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\modelclass.cpp(251,28): message : this argument is used as a buffer size
+  Player.cpp
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Player.cpp(94,37): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Player.cpp(96,37): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+  Compiling...
+  RenderTexture.cpp
+  Shader.cpp
+  Terrain.cpp
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Terrain.cpp(23,31): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Terrain.cpp(501,15): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Terrain.cpp(506,14): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+  Treasure.cpp
+     Creating library Bin\Desktop_2015\x64\Release\Roguelike.lib and object Bin\Desktop_2015\x64\Release\Roguelike.exp
+  Generating code
+  Previous IPDB not found, fall back to full compilation.
+  All 2056 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  Finished generating code
+  Roguelike.vcxproj -> C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Bin\Desktop_2015\x64\Release\Roguelike.exe
