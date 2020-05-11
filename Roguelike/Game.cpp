@@ -80,9 +80,11 @@ void Game::Initialize(HWND window, int width, int height)
 	gt = 0;
 	record = 0;
 	mouseSensitivity = 5.0f;
+	postProcessType = 0;
 	levelComplete = false;
 	m_showGrid = false;
 	enableMinimap = false;
+	enablePostProcess = false;
 	record_text = L"Cleared Levels: " + std::to_wstring(record);
 	winLine = L"LEVEL COMPLETED!";
 	winSubLine = L"Press 'R' to generate a new level";
@@ -284,86 +286,95 @@ void Game::Render()
 	context->OMSetDepthStencilState(m_states->DepthNone(), 0);
 	context->RSSetState(m_states->CullClockwise());
 
-	// Create our render to texture.
+	// Create our minimap render to texture.
 	RenderTexturePass1();
 
-	// Generated Map
-	// Corridors
-	std::vector<Corridor*>* hallsList = m_MapGen->GetHallsList();
-	for (std::vector<Corridor*>::iterator it = hallsList->begin(); it != hallsList->end(); it++)
+	if (enablePostProcess)
 	{
-		Corridor* hall = *it;
-		m_world = SimpleMath::Matrix::Identity;
-		SimpleMath::Matrix newPosition = SimpleMath::Matrix::CreateTranslation(hall->GetPosition());
-		m_world = m_world * newPosition;
-
-		m_BasicShaderPair.EnableShader(context);
-		m_BasicShaderPair.SetShaderParameters(context, &m_world, &m_view, &m_projection, &m_Light, hall->GetTexture());
-		hall->Render(context);
+		// Render our scene by using a post processing effect
+		PostProcess();
 	}
-
-	// Rooms
-	std::vector<Boundary*>* roomsList = m_MapGen->GetRoomsList();
-	for (std::vector<Boundary*>::iterator it = roomsList->begin(); it != roomsList->end(); ++it)
-	{
-		Boundary* bound = *it;
-		m_world = SimpleMath::Matrix::Identity;
-		SimpleMath::Matrix newPosition = SimpleMath::Matrix::CreateTranslation(bound->GetPosition());
-		m_world = m_world * newPosition;
-
-		m_BasicShaderPair.EnableShader(context);
-		m_BasicShaderPair.SetShaderParameters(context, &m_world, &m_view, &m_projection, &m_Light, bound->GetTexture());
-		bound->Render(context);
-	}
-
-	// Grid
-	if (m_showGrid)
-	{
-		context->RSSetState(m_states->Wireframe());
-		ModelClass cell = m_Grid->GetCell();
-		int** matrix = m_Grid->GetMatrix();
-		for (int i = 0; i < MAP_WIDTH; i++)
-			for (int j = 0; j < MAP_HEIGHT; j++)
-			{
-				if (matrix[i][j] != EMPTY)
-					continue;
-
-				m_world = SimpleMath::Matrix::Identity;
-				//Since every rectangle is shifted by width/2 and height/2, even the grid needs to be offset by 0.5f (which is 1.0f/2.0f)
-				SimpleMath::Matrix newPosition = SimpleMath::Matrix::CreateTranslation(i + 0.5f, j + 0.5f, 0);
-				m_world = m_world * newPosition;
-
-				m_BasicShaderPair.EnableShader(context);
-				m_BasicShaderPair.SetShaderParameters(context, &m_world, &m_view, &m_projection, &m_Light, m_texture1.Get());
-				cell.Render(context);
-			}
-	}
-
-	// Treasure
-	context->RSSetState(m_states->CullClockwise());
-	if (m_Treasure->IsActive())
-	{
-		m_world = SimpleMath::Matrix::Identity;
-		SimpleMath::Matrix newPosition = SimpleMath::Matrix::CreateTranslation(m_Treasure->GetPosition());
-		m_world = m_world * newPosition;
-
-		m_BasicShaderPair.EnableShader(context);
-		m_BasicShaderPair.SetShaderParameters(context, &m_world, &m_view, &m_projection, &m_Light, m_Treasure->GetTexture());
-		m_Treasure->Render(context);
-	}
-
-	// Player
-	context->OMSetBlendState(m_PlayerBlendState, 0, 0xFFFFFFFF);
-	m_world = SimpleMath::Matrix::Identity;
-	SimpleMath::Matrix newPosition = SimpleMath::Matrix::CreateTranslation(m_Player->GetPosition());
-	m_world = m_world * newPosition;
-
-	m_BasicShaderPair.EnableShader(context);
-	if (m_Player->IsFlipped())
-		m_BasicShaderPair.SetShaderParameters(context, &m_world, &m_view, &m_projection, &m_Light, m_Player->GetTextureFlipped());
 	else
-		m_BasicShaderPair.SetShaderParameters(context, &m_world, &m_view, &m_projection, &m_Light, m_Player->GetTexture());
-	m_Player->Render(context);
+	{
+		// Render our scene normally
+		// Generated Map
+		// Corridors
+		std::vector<Corridor*>* hallsList = m_MapGen->GetHallsList();
+		for (std::vector<Corridor*>::iterator it = hallsList->begin(); it != hallsList->end(); it++)
+		{
+			Corridor* hall = *it;
+			m_world = SimpleMath::Matrix::Identity;
+			SimpleMath::Matrix newPosition = SimpleMath::Matrix::CreateTranslation(hall->GetPosition());
+			m_world = m_world * newPosition;
+
+			m_BasicShaderPair.EnableShader(context);
+			m_BasicShaderPair.SetShaderParameters(context, &m_world, &m_view, &m_projection, &m_Light, hall->GetTexture());
+			hall->Render(context);
+		}
+
+		// Rooms
+		std::vector<Boundary*>* roomsList = m_MapGen->GetRoomsList();
+		for (std::vector<Boundary*>::iterator it = roomsList->begin(); it != roomsList->end(); ++it)
+		{
+			Boundary* bound = *it;
+			m_world = SimpleMath::Matrix::Identity;
+			SimpleMath::Matrix newPosition = SimpleMath::Matrix::CreateTranslation(bound->GetPosition());
+			m_world = m_world * newPosition;
+
+			m_BasicShaderPair.EnableShader(context);
+			m_BasicShaderPair.SetShaderParameters(context, &m_world, &m_view, &m_projection, &m_Light, bound->GetTexture());
+			bound->Render(context);
+		}
+
+		// Grid
+		if (m_showGrid)
+		{
+			context->RSSetState(m_states->Wireframe());
+			ModelClass cell = m_Grid->GetCell();
+			int** matrix = m_Grid->GetMatrix();
+			for (int i = 0; i < MAP_WIDTH; i++)
+				for (int j = 0; j < MAP_HEIGHT; j++)
+				{
+					if (matrix[i][j] != EMPTY)
+						continue;
+
+					m_world = SimpleMath::Matrix::Identity;
+					//Since every rectangle is shifted by width/2 and height/2, even the grid needs to be offset by 0.5f (which is 1.0f/2.0f)
+					SimpleMath::Matrix newPosition = SimpleMath::Matrix::CreateTranslation(i + 0.5f, j + 0.5f, 0);
+					m_world = m_world * newPosition;
+
+					m_BasicShaderPair.EnableShader(context);
+					m_BasicShaderPair.SetShaderParameters(context, &m_world, &m_view, &m_projection, &m_Light, m_texture1.Get());
+					cell.Render(context);
+				}
+		}
+
+		// Treasure
+		context->RSSetState(m_states->CullClockwise());
+		if (m_Treasure->IsActive())
+		{
+			m_world = SimpleMath::Matrix::Identity;
+			SimpleMath::Matrix newPosition = SimpleMath::Matrix::CreateTranslation(m_Treasure->GetPosition());
+			m_world = m_world * newPosition;
+
+			m_BasicShaderPair.EnableShader(context);
+			m_BasicShaderPair.SetShaderParameters(context, &m_world, &m_view, &m_projection, &m_Light, m_Treasure->GetTexture());
+			m_Treasure->Render(context);
+		}
+
+		// Player
+		context->OMSetBlendState(m_PlayerBlendState, 0, 0xFFFFFFFF);
+		m_world = SimpleMath::Matrix::Identity;
+		SimpleMath::Matrix newPosition = SimpleMath::Matrix::CreateTranslation(m_Player->GetPosition());
+		m_world = m_world * newPosition;
+
+		m_BasicShaderPair.EnableShader(context);
+		if (m_Player->IsFlipped())
+			m_BasicShaderPair.SetShaderParameters(context, &m_world, &m_view, &m_projection, &m_Light, m_Player->GetTextureFlipped());
+		else
+			m_BasicShaderPair.SetShaderParameters(context, &m_world, &m_view, &m_projection, &m_Light, m_Player->GetTexture());
+		m_Player->Render(context);
+	}
 
 	// Draw Text to the screen
 	m_sprites->Begin();
@@ -381,7 +392,6 @@ void Game::Render()
 	// Draw our sprite with the render texture displayed on it.
 	if (enableMinimap)
 	{
-		// Render on sprite
 		m_sprites->Begin();
 		m_sprites->Draw(m_FirstRenderPass->getShaderResourceView(), m_fullscreenRect);
 		m_sprites->End();
@@ -492,6 +502,7 @@ void Game::CreateDeviceDependentResources()
     m_smallfont = std::make_unique<SpriteFont>(device, L"SmallFont.spritefont");
     m_bigfont = std::make_unique<SpriteFont>(device, L"BigFont.spritefont");
 	m_batch = std::make_unique<PrimitiveBatch<VertexPositionColor>>(context);
+	m_postprocess = std::make_unique<BasicPostProcess>(device);
 
 	//setup our player and boundary models
 	m_MapGen = MapGenerator::GetInstance(device);
@@ -521,7 +532,8 @@ void Game::CreateDeviceDependentResources()
 	CreateDDSTextureFromFile(device, L"yellowBG.dds", nullptr, m_texture3.ReleaseAndGetAddressOf());
 
 	//initialise Render to texture
-	m_FirstRenderPass = new RenderTexture(device, 500, 300, 1, 2); //for our rendering, we dont use the last two properties, but they can't be zero and they can't be the same. 
+	m_FirstRenderPass = new RenderTexture(device, 500, 300, 1, 2);
+	m_RenderTexture = new RenderTexture(device, 500, 300, 1, 2);
 }
 
 // Allocate all memory resources that change on a window SizeChanged event.
@@ -562,6 +574,28 @@ void Game::SetupGUI()
 			m_cameraLock = !m_cameraLock;
 		if (ImGui::Button("Toggle Minimap", ImVec2(200, 40)))
 			enableMinimap = !enableMinimap;
+		if (ImGui::Button("Enable Bloom Extract", ImVec2(200, 40)))
+		{
+			enablePostProcess = true;
+			postProcessType = 0;
+		}
+		if (ImGui::Button("Enable Blur", ImVec2(200, 40)))
+		{
+			enablePostProcess = true;
+			postProcessType = 1;
+		}
+		if (ImGui::Button("Enable Sepia", ImVec2(200, 40)))
+		{
+			enablePostProcess = true;
+			postProcessType = 2;
+		}
+		if (ImGui::Button("Enable Monochrome", ImVec2(200, 40)))
+		{
+			enablePostProcess = true;
+			postProcessType = 3;
+		}
+		if (ImGui::Button("Disable PostProcessing", ImVec2(200, 40)))
+			enablePostProcess = false;
 	ImGui::End();
 }
 
@@ -647,6 +681,111 @@ void Game::RenderTexturePass1()
 
 	// Reset the render target back to the original back buffer and not the render to texture anymore.	
 	context->OMSetRenderTargets(1, &renderTargetView, depthTargetView);
+}
+
+void Game::PostProcess()
+{
+	auto context = m_deviceResources->GetD3DDeviceContext();
+	auto renderTargetView = m_deviceResources->GetRenderTargetView();
+	auto depthTargetView = m_deviceResources->GetDepthStencilView();
+	// Set the render target to be the render to texture.
+	m_RenderTexture->setRenderTarget(context);
+	// Clear the render to texture.
+	m_RenderTexture->clearRenderTarget(context, 0.0f, 0.0f, 0.0f, 1.0f);
+
+	// Render the scene using the secondary camera view
+	// Generated Map
+	// Corridors
+	std::vector<Corridor*>* hallsList = m_MapGen->GetHallsList();
+	for (std::vector<Corridor*>::iterator it = hallsList->begin(); it != hallsList->end(); it++)
+	{
+		Corridor* hall = *it;
+		m_world = SimpleMath::Matrix::Identity;
+		SimpleMath::Matrix newPosition = SimpleMath::Matrix::CreateTranslation(hall->GetPosition());
+		m_world = m_world * newPosition;
+
+		m_BasicShaderPair.EnableShader(context);
+		m_BasicShaderPair.SetShaderParameters(context, &m_world, &m_view1, &m_projection, &m_Light, hall->GetTexture());
+		hall->Render(context);
+	}
+
+	// Rooms
+	std::vector<Boundary*>* roomsList = m_MapGen->GetRoomsList();
+	for (std::vector<Boundary*>::iterator it = roomsList->begin(); it != roomsList->end(); ++it)
+	{
+		Boundary* bound = *it;
+		m_world = SimpleMath::Matrix::Identity;
+		SimpleMath::Matrix newPosition = SimpleMath::Matrix::CreateTranslation(bound->GetPosition());
+		m_world = m_world * newPosition;
+
+		m_BasicShaderPair.EnableShader(context);
+		m_BasicShaderPair.SetShaderParameters(context, &m_world, &m_view1, &m_projection, &m_Light, bound->GetTexture());
+		bound->Render(context);
+	}
+
+	// Grid
+	if (m_showGrid)
+	{
+		context->RSSetState(m_states->Wireframe());
+		ModelClass cell = m_Grid->GetCell();
+		int** matrix = m_Grid->GetMatrix();
+		for (int i = 0; i < MAP_WIDTH; i++)
+			for (int j = 0; j < MAP_HEIGHT; j++)
+			{
+				if (matrix[i][j] != EMPTY)
+					continue;
+
+				m_world = SimpleMath::Matrix::Identity;
+				//Since every rectangle is shifted by width/2 and height/2, even the grid needs to be offset by 0.5f (which is 1.0f/2.0f)
+				SimpleMath::Matrix newPosition = SimpleMath::Matrix::CreateTranslation(i + 0.5f, j + 0.5f, 0);
+				m_world = m_world * newPosition;
+
+				m_BasicShaderPair.EnableShader(context);
+				m_BasicShaderPair.SetShaderParameters(context, &m_world, &m_view1, &m_projection, &m_Light, m_texture1.Get());
+				cell.Render(context);
+			}
+	}
+
+	// Treasure
+	context->RSSetState(m_states->CullClockwise());
+	if (m_Treasure->IsActive())
+	{
+		m_world = SimpleMath::Matrix::Identity;
+		SimpleMath::Matrix newPosition = SimpleMath::Matrix::CreateTranslation(m_Treasure->GetPosition());
+		m_world = m_world * newPosition;
+
+		m_BasicShaderPair.EnableShader(context);
+		m_BasicShaderPair.SetShaderParameters(context, &m_world, &m_view1, &m_projection, &m_Light, m_Treasure->GetTexture());
+		m_Treasure->Render(context);
+	}
+
+	// Player
+	context->OMSetBlendState(m_PlayerBlendState, 0, 0xFFFFFFFF);
+	m_world = SimpleMath::Matrix::Identity;
+	SimpleMath::Matrix newPosition = SimpleMath::Matrix::CreateTranslation(m_Player->GetPosition());
+	m_world = m_world * newPosition;
+
+	m_BasicShaderPair.EnableShader(context);
+	if (m_Player->IsFlipped())
+		m_BasicShaderPair.SetShaderParameters(context, &m_world, &m_view1, &m_projection, &m_Light, m_Player->GetTextureFlipped());
+	else
+		m_BasicShaderPair.SetShaderParameters(context, &m_world, &m_view1, &m_projection, &m_Light, m_Player->GetTexture());
+	m_Player->Render(context);
+
+	// Reset the render target back to the original back buffer and not the render to texture anymore.	
+	context->OMSetRenderTargets(1, &renderTargetView, depthTargetView);
+
+	//Apply the post process effect
+	if (postProcessType == 0)
+		m_postprocess->SetEffect(BasicPostProcess::BloomExtract);
+	else if (postProcessType == 1)
+		m_postprocess->SetEffect(BasicPostProcess::GaussianBlur_5x5);
+	else if (postProcessType == 2)
+		m_postprocess->SetEffect(BasicPostProcess::Sepia);
+	else if (postProcessType == 3)
+		m_postprocess->SetEffect(BasicPostProcess::Monochrome);
+	m_postprocess->SetSourceTexture(m_RenderTexture->getShaderResourceView());
+	m_postprocess->Process(context);
 }
 
 void Game::OnDeviceLost()

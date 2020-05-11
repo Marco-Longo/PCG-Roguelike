@@ -12,6 +12,7 @@
 #include "MapGenerator.h"
 #include "Grid.h"
 #include "Treasure.h"
+#include "PostProcess.h"
 
 class Game final : public DX::IDeviceNotify
 {
@@ -61,6 +62,7 @@ private:
 	void SetupGUI();
 	void TimeFormat();
 	void RenderTexturePass1();
+	void PostProcess();
 
     // Device resources.
     std::unique_ptr<DX::DeviceResources>    m_deviceResources;
@@ -157,4 +159,10 @@ private:
 	DirectX::SimpleMath::Vector2											lastFrameCursorPos;
 	POINT																	mousePos;
 	float																	mouseSensitivity;
+
+	//Post Processing
+	bool																	enablePostProcess;
+	int																		postProcessType;
+	std::unique_ptr<DirectX::BasicPostProcess>								m_postprocess;
+	RenderTexture*															m_RenderTexture;
 };

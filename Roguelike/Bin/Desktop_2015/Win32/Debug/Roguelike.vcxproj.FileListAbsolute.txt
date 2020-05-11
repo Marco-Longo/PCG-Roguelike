@@ -1,2 +1,4 @@
+C:\Users\marco\Desktop\Roguelike\Bin\Desktop_2015\Win32\Debug\Roguelike.exe
+C:\Users\marco\Desktop\Roguelike\Bin\Desktop_2015\Win32\Debug\Roguelike.pdb
 C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Bin\Desktop_2015\Win32\Debug\Roguelike.exe
 C:\Users\marco\Documents\University\Advanced Procedural Methods\Coursework\Roguelike\Bin\Desktop_2015\Win32\Debug\Roguelike.pdb
