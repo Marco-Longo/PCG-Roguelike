@@ -570,7 +570,7 @@ void Game::SetupGUI()
 //		ImGui::SliderFloat("PlayerY", m_Player->GetPositionY(), 0, MAP_HEIGHT);
 		if (ImGui::Button("Toggle Grid View", ImVec2(200, 40)))
 			m_showGrid = !m_showGrid;
-		if (ImGui::Button("Toggle Camera Lock", ImVec2(200, 40)))
+		if (ImGui::Button("Toggle Zoom (ScrollWheel)", ImVec2(200, 40)))
 			m_cameraLock = !m_cameraLock;
 		if (ImGui::Button("Toggle Minimap", ImVec2(200, 40)))
 			enableMinimap = !enableMinimap;
